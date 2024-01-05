@@ -6,7 +6,7 @@ import dev.frozenmilk.dairy.calcified.hardware.controller.CachedCompoundSupplier
 import dev.frozenmilk.util.angle.AngleDegrees
 import dev.frozenmilk.util.angle.AngleRadians
 
-abstract class CalcifiedEncoder<T> internal constructor(internal val module: CalcifiedModule, internal val port: Byte) {
+abstract class CalcifiedEncoder<T> internal constructor(val module: CalcifiedModule, val port: Byte) {
 	var direction = Direction.FORWARD
 	abstract val positionSupplier: CachedCompoundSupplier<T, Double>
 	abstract val velocitySupplier: CachedCompoundSupplier<Double, Double>
