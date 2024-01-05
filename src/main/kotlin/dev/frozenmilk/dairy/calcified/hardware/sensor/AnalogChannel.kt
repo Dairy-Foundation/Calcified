@@ -5,7 +5,7 @@ import dev.frozenmilk.dairy.calcified.gamepad.EnhancedNumberSupplier
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import java.util.function.Supplier
 
-class AnalogInput(private val module: CalcifiedModule, private val port: Byte) : Supplier<Double> {
+class AnalogInput(val module: CalcifiedModule, val port: Byte) : Supplier<Double> {
 	private var cachedVoltage: Double? = null
 
 	/**

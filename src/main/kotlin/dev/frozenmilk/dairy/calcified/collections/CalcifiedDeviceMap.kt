@@ -1,6 +1,5 @@
 package dev.frozenmilk.dairy.calcified.collections
 
-import com.qualcomm.hardware.lynx.commands.core.LynxFirmwareVersionManager
 import com.qualcomm.robotcore.hardware.LynxModuleImuType
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
@@ -18,7 +17,6 @@ import dev.frozenmilk.dairy.calcified.hardware.motor.RadiansEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.TicksEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.UnitEncoder
 import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 
 abstract class CalcifiedDeviceMap<T> internal constructor(protected val module: CalcifiedModule, private val map: MutableMap<Byte, T> = mutableMapOf()) : MutableMap<Byte, T> by map
 
@@ -97,7 +95,7 @@ class I2CDevices internal constructor(module: CalcifiedModule) : CalcifiedDevice
 	fun getIMU(port: Byte, imuType: LynxModuleImuType, angleBasedRobotOrientation: AngleBasedRobotOrientation): CalcifiedIMU {
 		if (port !in 0 until LynxConstants.NUMBER_OF_I2C_BUSSES) throw IllegalArgumentException("$port is not in the acceptable port range [0, ${LynxConstants.NUMBER_OF_I2C_BUSSES - 1}]")
 		if (!this.containsKey(port) || this[port] !is CalcifiedIMU || (this[port] as CalcifiedIMU).imuType != imuType) {
-			this[port] = CalcifiedIMU(imuType, LynxFirmwareVersionManager.createLynxI2cDeviceSynch(AppUtil.getDefContext(), module.lynxModule, port.toInt()), angleBasedRobotOrientation)
+			this[port] = CalcifiedIMU(imuType, module, port, angleBasedRobotOrientation)
 		}
 		return (this[port] as CalcifiedIMU)
 	}

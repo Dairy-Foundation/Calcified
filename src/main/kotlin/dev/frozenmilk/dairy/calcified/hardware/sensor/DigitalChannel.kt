@@ -8,7 +8,7 @@ import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import java.util.function.Consumer
 import java.util.function.Supplier
 
-class DigitalInput(private val module: CalcifiedModule, private val port: Byte) : Supplier<Boolean> {
+class DigitalInput(val module: CalcifiedModule, val port: Byte) : Supplier<Boolean> {
 	init {
 		LynxSetDIODirectionCommand(module.lynxModule, port.toInt(), DigitalChannel.Mode.INPUT).send()
 	}

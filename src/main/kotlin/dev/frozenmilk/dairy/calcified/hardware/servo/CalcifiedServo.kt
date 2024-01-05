@@ -9,7 +9,7 @@ import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.calcified.hardware.motor.Direction
 import kotlin.math.abs
 
-class CalcifiedServo internal constructor(private val module: CalcifiedModule, private val port: Byte) : PWMDevice {
+class CalcifiedServo internal constructor(val module: CalcifiedModule, val port: Byte) : PWMDevice {
 	var direction = Direction.FORWARD;
 
 	override var pwmRange: PwmRange = PwmRange.defaultRange
