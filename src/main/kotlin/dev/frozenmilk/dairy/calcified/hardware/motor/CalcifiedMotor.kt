@@ -9,7 +9,7 @@ import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 import kotlin.math.abs
 
-class CalcifiedMotor internal constructor(private val module: CalcifiedModule, private val port: Byte) : ComplexMotor {
+class CalcifiedMotor internal constructor(val module: CalcifiedModule, val port: Byte) : ComplexMotor {
 	override var direction = Direction.FORWARD
 	override var cachingTolerance = 0.005
 	override var enabled = true
