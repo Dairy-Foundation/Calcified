@@ -3,7 +3,7 @@ package dev.frozenmilk.dairy.calcified.hardware.sensor
 import com.qualcomm.hardware.bosch.BHI260IMU
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.bosch.BNO055IMU.Register
-import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch
+import com.qualcomm.hardware.lynx.commands.core.LynxFirmwareVersionManager
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.hardware.I2cAddr
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot
@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.LynxModuleImuType.NONE
 import com.qualcomm.robotcore.hardware.LynxModuleImuType.UNKNOWN
 import com.qualcomm.robotcore.hardware.QuaternionBasedImuHelper.FailedToRetrieveQuaternionException
 import com.qualcomm.robotcore.hardware.TimestampedData
+import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.calcified.hardware.controller.CompoundSupplier
 import dev.frozenmilk.util.angle.Angle
 import dev.frozenmilk.util.angle.AngleRadians
@@ -26,10 +27,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Quaternion
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.robotcore.internal.hardware.android.AndroidBoard
 import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, private val device: LynxI2cDeviceSynch, initialAngles: AngleBasedRobotOrientation) {
+class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val module: CalcifiedModule, val port: Byte, initialAngles: AngleBasedRobotOrientation) {
+	val device = LynxFirmwareVersionManager.createLynxI2cDeviceSynch(AppUtil.getDefContext(), module.lynxModule, port.toInt())
 	init {
 		when (imuType) {
 			NONE, UNKNOWN -> throw IllegalStateException("Attempted to access IMU, but no accessible IMU found")
