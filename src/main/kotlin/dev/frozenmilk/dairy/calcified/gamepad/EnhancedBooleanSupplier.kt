@@ -28,15 +28,14 @@ class EnhancedBooleanSupplier(private val parents: Collection<Feature>, private 
 		private set
 	private var timeMarker = 0L
 	fun update() {
+		previous = current
 		val time = System.nanoTime()
 		if(!current && booleanSupplier.get() && time - timeMarker > risingDebounce){
-			previous = false
 			current = true
 			timeMarker = time
 			toggleTrue = !toggleTrue
 		}
 		else if (current && !booleanSupplier.get() && time - timeMarker > fallingDebounce) {
-			previous = true
 			current = false
 			timeMarker = time
 			toggleFalse = !toggleFalse
