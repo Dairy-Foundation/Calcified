@@ -7,19 +7,9 @@ import dev.frozenmilk.dairy.core.dependencyresolution.dependencies.Dependency
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
 import java.util.function.Supplier
 
-class EnhancedBooleanSupplier(private val parents: Collection<Feature>, private val booleanSupplier: Supplier<Boolean>, private val risingDebounce: Long, private val fallingDebounce: Long) : Supplier<Boolean>, Feature {
-	private constructor(parents: Collection<Feature>, booleanSupplier: Supplier<Boolean>, other: Supplier<Boolean>?) : this(
-			parents.also {
-				if (booleanSupplier is Feature) it + booleanSupplier
-			}
-			.also {
-				if (other is Feature) it + booleanSupplier
-			},
-			booleanSupplier,
-			0, 0
-	)
+class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, private val risingDebounce: Long, private val fallingDebounce: Long) : Supplier<Boolean>, Feature {
 	// todo review and potentially change to be lazy
-	constructor(booleanSupplier: Supplier<Boolean>) : this(emptyList(), booleanSupplier, null)
+	constructor(booleanSupplier: Supplier<Boolean>) : this(booleanSupplier, 0, 0)
 	private var previous = booleanSupplier.get()
 	private var current = booleanSupplier.get()
 	var toggleTrue = booleanSupplier.get()
@@ -28,22 +18,35 @@ class EnhancedBooleanSupplier(private val parents: Collection<Feature>, private 
 		private set
 	private var timeMarker = 0L
 	fun update() {
+		previous = current
 		val time = System.nanoTime()
-		if(!current && booleanSupplier.get() && time - timeMarker > risingDebounce){
-			previous = false
-			current = true
-			timeMarker = time
-			toggleTrue = !toggleTrue
+		if(!current && booleanSupplier.get()){
+			if(time - timeMarker > risingDebounce) {
+				current = true
+				toggleTrue = !toggleTrue
+				timeMarker = time
+			}
 		}
-		else if (current && !booleanSupplier.get() && time - timeMarker > fallingDebounce) {
-			previous = true
-			current = false
+		else if (current && !booleanSupplier.get()) {
+			if (time - timeMarker > fallingDebounce) {
+				current = false
+				toggleFalse = !toggleFalse
+				timeMarker = time
+			}
+		}
+		else {
 			timeMarker = time
-			toggleFalse = !toggleFalse
 		}
 	}
 
-	override fun get(): Boolean { return current }
+	private var valid = false
+	override fun get(): Boolean {
+		if (!valid) {
+			update()
+			valid = true
+		}
+		return current
+	}
 	val whenTrue: Boolean get() { return current and !previous }
 	val whenFalse: Boolean get() { return !current and previous }
 
@@ -52,7 +55,7 @@ class EnhancedBooleanSupplier(private val parents: Collection<Feature>, private 
 	 *
 	 * @param debounce is applied to both the rising and falling edges
 	 */
-	fun debounce(debounce: Double) = EnhancedBooleanSupplier(parents + this, this.booleanSupplier, (debounce * 1E9).toLong(), (debounce * 1E9).toLong())
+	fun debounce(debounce: Double) = EnhancedBooleanSupplier(this.booleanSupplier, (debounce * 1E9).toLong(), (debounce * 1E9).toLong())
 
 	/**
 	 * non-mutating
@@ -60,83 +63,97 @@ class EnhancedBooleanSupplier(private val parents: Collection<Feature>, private 
 	 * @param rising is applied to the rising edge
 	 * @param falling is applied to the falling edge
 	 */
-	fun debounce(rising: Double, falling: Double) = EnhancedBooleanSupplier(parents + this, this.booleanSupplier, (rising * 1E9).toLong(), (falling * 1E9).toLong())
+	fun debounce(rising: Double, falling: Double) = EnhancedBooleanSupplier(this.booleanSupplier, (rising * 1E9).toLong(), (falling * 1E9).toLong())
 
 	/**
 	 * non-mutating
 	 *
 	 * @param debounce is applied to the rising edge
 	 */
-	fun debounceRisingEdge(debounce: Double) = EnhancedBooleanSupplier(parents + this, this.booleanSupplier, (debounce * 1E9).toLong(), this.fallingDebounce)
+	fun debounceRisingEdge(debounce: Double) = EnhancedBooleanSupplier(this.booleanSupplier, (debounce * 1E9).toLong(), this.fallingDebounce)
 
 	/**
 	 * non-mutating
 	 *
 	 * @param debounce is applied to the falling edge
 	 */
-	fun debounceFallingEdge(debounce: Double) = EnhancedBooleanSupplier(parents + this, this.booleanSupplier, this.risingDebounce, (debounce * 1E9).toLong())
+	fun debounceFallingEdge(debounce: Double) = EnhancedBooleanSupplier(this.booleanSupplier, this.risingDebounce, (debounce * 1E9).toLong())
 
 	/**
 	 * non-mutating
 	 *
 	 * @return a new EnhancedBooleanSupplier that combines the two conditions
 	 */
-	infix fun and(booleanSupplier: Supplier<Boolean>) = EnhancedBooleanSupplier (parents + this, { this.get() and booleanSupplier.get() }, booleanSupplier)
+	infix fun and(booleanSupplier: Supplier<Boolean>) = EnhancedBooleanSupplier { this.get() and booleanSupplier.get() }
 
 	/**
 	 * non-mutating
 	 *
 	 * @return a new EnhancedBooleanSupplier that combines the two conditions
 	 */
-	infix fun or(booleanSupplier: Supplier<Boolean>) = EnhancedBooleanSupplier (parents + this, { this.get() or booleanSupplier.get() }, booleanSupplier)
+	infix fun or(booleanSupplier: Supplier<Boolean>) = EnhancedBooleanSupplier { this.get() or booleanSupplier.get() }
 
 	/**
 	 * non-mutating
 	 *
 	 * @return a new EnhancedBooleanSupplier that combines the two conditions
 	 */
-	infix fun xor(booleanSupplier: Supplier<Boolean>) = EnhancedBooleanSupplier (parents + this, { this.get() xor booleanSupplier.get() }, booleanSupplier)
+	infix fun xor(booleanSupplier: Supplier<Boolean>) = EnhancedBooleanSupplier { this.get() xor booleanSupplier.get() }
 
 	/**
 	 * non-mutating
 	 *
-	 * @return a new EnhancedBooleanSupplier that has the inverse of this
+	 * @return a new EnhancedBooleanSupplier that has the inverse of this, and keeps the debounce information
 	 */
-	operator fun not() = EnhancedBooleanSupplier (parents + this, { !this.get() }, null)
+	operator fun not() = EnhancedBooleanSupplier ({ !this.booleanSupplier.get() }, risingDebounce, fallingDebounce)
 
 	//
 	// Impl Feature:
 	//
-	override val dependencies: Set<Dependency<*, *>> = DependencySet(this).also {
-		if (parents.isNotEmpty()) {
-			it.dependsDirectlyOn(*parents.toTypedArray())
-		}
-		else {
-			it.yields()
-		}
-	}
+	override val dependencies: Set<Dependency<*, *>> = DependencySet(this)
+			.yields()
 
 	init {
 		FeatureRegistrar.registerFeature(this)
 	}
 
 	override fun preUserInitHook(opMode: OpModeWrapper) {
-		update()
+		get()
+	}
+
+	override fun postUserInitHook(opMode: OpModeWrapper) {
+		valid = false
 	}
 
 	override fun preUserInitLoopHook(opMode: OpModeWrapper) {
-		update()
+		get()
+	}
+
+	override fun postUserInitLoopHook(opMode: OpModeWrapper) {
+		valid = false
 	}
 
 	override fun preUserStartHook(opMode: OpModeWrapper) {
-		update()
+		get()
+	}
+
+	override fun postUserStartHook(opMode: OpModeWrapper) {
+		valid = false
 	}
 
 	override fun preUserLoopHook(opMode: OpModeWrapper) {
-		update()
+		get()
+	}
+
+	override fun postUserLoopHook(opMode: OpModeWrapper) {
+		valid = false
 	}
 
 	override fun preUserStopHook(opMode: OpModeWrapper) {
-		update()
+		get()
+	}
+
+	override fun postUserStopHook(opMode: OpModeWrapper) {
+		valid = false
 	}
 }
