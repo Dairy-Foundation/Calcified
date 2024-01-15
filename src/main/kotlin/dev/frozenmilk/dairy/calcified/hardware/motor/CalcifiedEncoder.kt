@@ -2,13 +2,13 @@ package dev.frozenmilk.dairy.calcified.hardware.motor
 
 import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
+import dev.frozenmilk.dairy.calcified.hardware.controller.BufferedCachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.controller.CachedCompoundSupplier
-import dev.frozenmilk.util.units.Unit
 
 abstract class CalcifiedEncoder<T> internal constructor(val module: CalcifiedModule, val port: Byte) {
 	var direction = Direction.FORWARD
 	abstract val positionSupplier: CachedCompoundSupplier<T, Double>
-	abstract val velocitySupplier: CachedCompoundSupplier<Double, Double>
+	abstract val velocitySupplier: BufferedCachedCompoundSupplier<Double, Double>
 	protected abstract var offset: T
 
 	/**
@@ -52,16 +52,22 @@ class TicksEncoder internal constructor(module: CalcifiedModule, port: Byte) : C
 		}
 	}
 
-	override val velocitySupplier: CachedCompoundSupplier<Double, Double> = object : CachedCompoundSupplier<Double, Double> {
+	override val velocitySupplier = object : BufferedCachedCompoundSupplier<Double, Double> {
 		private var cachedVelocity: Double? = null
-		private var previousPosition = positionSupplier.get()
+		private var cachedRawVelocity: Double? = null
+		private var previousPositions = ArrayDeque(listOf(Pair(module.cachedTime, positionSupplier.get())))
 
 		override fun findError(target: Double): Double {
 			return target - get()
 		}
 
 		override fun clearCache() {
+			while (previousPositions.size >= 2 && module.cachedTime - previousPositions[1].first >= velocityTimeWindow) {
+				previousPositions.removeFirst()
+			}
+			previousPositions.addLast(Pair(module.cachedTime, positionSupplier.get()))
 			cachedVelocity = null
+			cachedRawVelocity = null
 		}
 
 		/**
@@ -69,10 +75,18 @@ class TicksEncoder internal constructor(module: CalcifiedModule, port: Byte) : C
 		 */
 		override fun get(): Double {
 			if (cachedVelocity == null) {
-				cachedVelocity = (position - previousPosition).toDouble() / (module.cachedTime - module.previousCachedTime)
-				previousPosition = position
+				while (previousPositions.size >= 2 && module.cachedTime - previousPositions[1].first >= velocityTimeWindow) {
+					previousPositions.removeFirst()
+				}
+				cachedVelocity = (positionSupplier.get() - previousPositions[0].second).toDouble() / (module.cachedTime - previousPositions[0].first)
+				cachedRawVelocity = (positionSupplier.get() - previousPositions.last().second).toDouble() / (module.cachedTime - previousPositions.last().first)
 			}
 			return cachedVelocity!!
+		}
+
+		override fun getRaw(): Double {
+			get()
+			return cachedRawVelocity!!
 		}
 	}
 	override var offset: Int = 0
@@ -83,6 +97,8 @@ class TicksEncoder internal constructor(module: CalcifiedModule, port: Byte) : C
 		set(value) {
 			offset = value - positionSupplier.get()
 		}
+
+	var velocityTimeWindow = 0.2
 }
 
 abstract class UnitEncoder<T>(private val ticksEncoder: TicksEncoder) : CalcifiedEncoder<T>(ticksEncoder.module, ticksEncoder.port) {

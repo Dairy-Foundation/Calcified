@@ -21,3 +21,10 @@ interface CompoundSupplier<UNIT, ERROR> : ErrorSupplier<UNIT, ERROR>, Supplier<U
 interface CachedCompoundSupplier<UNIT, ERROR> : CompoundSupplier<UNIT, ERROR> {
 	fun clearCache()
 }
+
+interface BufferedCachedCompoundSupplier<UNIT, ERROR> : CachedCompoundSupplier<UNIT, ERROR> {
+	/**
+	 * the unfiltered velocity since the last time this method was called
+	 */
+	fun getRaw(): Double
+}

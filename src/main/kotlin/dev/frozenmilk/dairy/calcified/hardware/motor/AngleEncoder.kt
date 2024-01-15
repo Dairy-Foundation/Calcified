@@ -1,5 +1,6 @@
 package dev.frozenmilk.dairy.calcified.hardware.motor
 
+import dev.frozenmilk.dairy.calcified.hardware.controller.BufferedCachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.controller.CachedCompoundSupplier
 import dev.frozenmilk.util.units.Angle
 import dev.frozenmilk.util.units.AngleUnit
@@ -29,16 +30,27 @@ class AngleEncoder internal constructor(ticksEncoder: TicksEncoder,
 		}
 	}
 
-	override val velocitySupplier = object : CachedCompoundSupplier<Double, Double> {
+	override val velocitySupplier = object : BufferedCachedCompoundSupplier<Double, Double> {
 		private var cachedVelocity: Double? = null
-		private var previousPosition = position
+		private var cachedRawVelocity: Double? = null
+		private var previousPositions = ArrayDeque(listOf(Pair(module.cachedTime, positionSupplier.get())))
 
 		override fun findError(target: Double): Double {
 			return target - get()
 		}
 
+		override fun getRaw(): Double {
+			get()
+			return cachedRawVelocity!!
+		}
+
 		override fun clearCache() {
+			while (previousPositions.size >= 2 && module.cachedTime - previousPositions[1].first >= velocityTimeWindow) {
+				previousPositions.removeFirst()
+			}
+			previousPositions.addLast(Pair(module.cachedTime, positionSupplier.get()))
 			cachedVelocity = null
+			cachedRawVelocity = null
 		}
 
 		/**
@@ -46,10 +58,15 @@ class AngleEncoder internal constructor(ticksEncoder: TicksEncoder,
 		 */
 		override fun get(): Double {
 			if (cachedVelocity == null) {
-				cachedVelocity = (position - previousPosition).value / (module.cachedTime - module.previousCachedTime)
-				previousPosition = position
+				while (previousPositions.size >= 2 && module.cachedTime - previousPositions[1].first >= velocityTimeWindow) {
+					previousPositions.removeFirst()
+				}
+				cachedVelocity = (positionSupplier.get() - previousPositions[0].second).toDouble() / (module.cachedTime - previousPositions[0].first)
+				cachedRawVelocity = (positionSupplier.get() - previousPositions.last().second).toDouble() / (module.cachedTime - previousPositions.last().first)
 			}
 			return cachedVelocity!!
 		}
 	}
+
+	var velocityTimeWindow = 0.2
 }
