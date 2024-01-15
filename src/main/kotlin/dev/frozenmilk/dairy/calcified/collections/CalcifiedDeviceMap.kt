@@ -3,20 +3,22 @@ package dev.frozenmilk.dairy.calcified.collections
 import com.qualcomm.robotcore.hardware.LynxModuleImuType
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
-import dev.frozenmilk.util.orientation.AngleBasedRobotOrientation
+import dev.frozenmilk.dairy.calcified.hardware.motor.AngleEncoder
+import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedContinuousServo
 import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedEncoder
 import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedIMU
 import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedMotor
+import dev.frozenmilk.dairy.calcified.hardware.motor.DistanceEncoder
 import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedServo
-import dev.frozenmilk.dairy.calcified.hardware.motor.DegreesEncoder
 import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalInput
 import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalOutput
 import dev.frozenmilk.dairy.calcified.hardware.servo.PWMDevice
-import dev.frozenmilk.dairy.calcified.hardware.motor.RadiansEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.TicksEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.UnitEncoder
 import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
+import dev.frozenmilk.util.units.DistanceUnit
+import dev.frozenmilk.util.units.AngleUnit
 
 abstract class CalcifiedDeviceMap<T> internal constructor(protected val module: CalcifiedModule, private val map: MutableMap<Byte, T> = mutableMapOf()) : MutableMap<Byte, T> by map
 
@@ -68,26 +70,28 @@ class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMa
 	 *
 	 * @return Overrides the encoder on the port with a [UnitEncoder] of the supplied type, with the [ticksPerUnit] specified
 	 */
-	inline fun <reified T : UnitEncoder<*>> getEncoder(type: Class<out T>, port: Byte, ticksPerUnit: Double): T {
-		if (!contains(port) || this[port] !is T) {
-			val ticksEncoder = getTicksEncoder(port)
-			this[port] = type.getDeclaredConstructor(TicksEncoder::class.java, Double::class.java).newInstance(ticksEncoder, ticksPerUnit)
-		}
-		return type.cast(this[port])!!
+	inline fun <reified T : UnitEncoder<*>> getEncoder(lazySupplier: (TicksEncoder) -> T, port: Byte): T {
+		val ticksEncoder = getTicksEncoder(port)
+		this[port] = lazySupplier(ticksEncoder)
+		return this[port] as? T ?: throw IllegalStateException("something went wrong while creating a new encoder, this shouldn't be reachable")
 	}
 
+	inline fun <reified T : UnitEncoder<*>> getEncoder(port: Byte): T? {
+		return this[port] as? T
+	}
 	/**
-	 * overrides the encoder on the port with a RadiansEncoder, with the ticksPerRevolution specified
+	 * overrides the encoder on the port with an [AngleEncoder], with the [ticksPerRevolution] specified, that outputs values as [angleUnit]
 	 */
-	fun getRadiansEncoder(port: Byte, ticksPerRevolution: Double): RadiansEncoder {
-		return getEncoder(RadiansEncoder::class.java, port, ticksPerRevolution)
+	fun getAngleEncoder(port: Byte, ticksPerRevolution: Double, angleUnit: AngleUnit): AngleEncoder {
+		return getEncoder({
+			AngleEncoder(it, ticksPerRevolution, angleUnit)
+		}, port)
 	}
 
-	/**
-	 * overrides the encoder on the port with a DegreesEncoder, with the ticksPerRevolution specified
-	 */
-	fun getDegreesEncoder(port: Byte, ticksPerRevolution: Double): DegreesEncoder {
-		return getEncoder(DegreesEncoder::class.java, port, ticksPerRevolution)
+	fun getDistanceEncoder(port: Byte, ticksPerUnit: Double, distance: DistanceUnit): DistanceEncoder {
+		return getEncoder({
+			DistanceEncoder(it, ticksPerUnit, distance)
+		}, port)
 	}
 }
 

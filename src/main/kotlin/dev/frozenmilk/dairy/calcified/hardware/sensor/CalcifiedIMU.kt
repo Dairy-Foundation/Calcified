@@ -16,9 +16,9 @@ import com.qualcomm.robotcore.hardware.QuaternionBasedImuHelper.FailedToRetrieve
 import com.qualcomm.robotcore.hardware.TimestampedData
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.calcified.hardware.controller.CompoundSupplier
-import dev.frozenmilk.util.angle.Angle
-import dev.frozenmilk.util.angle.AngleRadians
-import dev.frozenmilk.util.orientation.AngleBasedRobotOrientation
+import dev.frozenmilk.util.units.Angle
+import dev.frozenmilk.util.units.AngleUnits
+import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
@@ -326,9 +326,9 @@ fun fromOrientation(orientation: Orientation): AngleBasedRobotOrientation {
 			.toAxesOrder(AxesOrder.XYZ)
 			.toAngleUnit(AngleUnit.RADIANS)
 	return AngleBasedRobotOrientation(
-			AngleRadians(formattedOrientation.firstAngle.toDouble()),
-			AngleRadians(formattedOrientation.secondAngle.toDouble()),
-			AngleRadians(formattedOrientation.thirdAngle.toDouble())
+			Angle(AngleUnits.RADIAN, formattedOrientation.firstAngle.toDouble()),
+			Angle(AngleUnits.RADIAN, formattedOrientation.secondAngle.toDouble()),
+			Angle(AngleUnits.RADIAN, formattedOrientation.thirdAngle.toDouble())
 	)
 }
 
@@ -354,7 +354,7 @@ fun fromYawPitchRollAngles(yawPitchRollAngles: YawPitchRollAngles): AngleBasedRo
 }
 
 fun AngleBasedRobotOrientation.toOrientation(): Orientation {
-	return Orientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS, xRot.intoRadians().theta.toFloat(), yRot.intoRadians().theta.toFloat(), zRot.intoRadians().theta.toFloat(), 0L)
+	return Orientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS, xRot.intoRadians().value.toFloat(), yRot.intoRadians().value.toFloat(), zRot.intoRadians().value.toFloat(), 0L)
 }
 
 fun AngleBasedRobotOrientation.toYawPitchRoll(): YawPitchRollAngles {

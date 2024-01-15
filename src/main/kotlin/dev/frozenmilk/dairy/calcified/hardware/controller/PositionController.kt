@@ -1,10 +1,9 @@
 package dev.frozenmilk.dairy.calcified.hardware.controller
 
-import dev.frozenmilk.util.angle.Angle
-import dev.frozenmilk.util.cell.LazyCell
 import dev.frozenmilk.util.profile.AsymmetricMotionProfile
 import dev.frozenmilk.util.profile.ProfileConstraints
 import dev.frozenmilk.util.profile.ProfileStateComponent
+import dev.frozenmilk.util.units.Angle
 import kotlin.math.cos
 
 @FunctionalInterface
@@ -13,7 +12,7 @@ interface PositionController<IN> {
 }
 
 class AngularFFController(var kF: Double) : PositionController<Angle> {
-	override fun calculate(position: Angle, target: Angle, deltaTime: Double) = cos(position.intoRadians().theta) * kF
+	override fun calculate(position: Angle, target: Angle, deltaTime: Double) = cos(position.intoRadians().value) * kF
 }
 
 class MotionProfile<N : Number>(val constraints: ProfileConstraints, val component: ProfileStateComponent) : PositionController<N> {

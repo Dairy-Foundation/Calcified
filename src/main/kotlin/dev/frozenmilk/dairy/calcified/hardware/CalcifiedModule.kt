@@ -10,11 +10,12 @@ import dev.frozenmilk.dairy.calcified.collections.Encoders
 import dev.frozenmilk.dairy.calcified.collections.I2CDevices
 import dev.frozenmilk.dairy.calcified.collections.Motors
 import dev.frozenmilk.dairy.calcified.collections.PWMDevices
+import dev.frozenmilk.dairy.calcified.hardware.motor.AngleEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedMotor
-import dev.frozenmilk.dairy.calcified.hardware.motor.DegreesEncoder
-import dev.frozenmilk.dairy.calcified.hardware.motor.RadiansEncoder
+import dev.frozenmilk.dairy.calcified.hardware.motor.DistanceEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.TicksEncoder
+import dev.frozenmilk.dairy.calcified.hardware.motor.UnitEncoder
 import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
 import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedIMU
 import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalInput
@@ -22,7 +23,10 @@ import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalOutput
 import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedContinuousServo
 import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedServo
 import dev.frozenmilk.util.cell.LateInitCell
-import dev.frozenmilk.util.orientation.AngleBasedRobotOrientation
+import dev.frozenmilk.util.units.DistanceUnit
+import dev.frozenmilk.util.units.AngleUnit
+import dev.frozenmilk.util.units.AngleUnits
+import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 
 class CalcifiedModule(val lynxModule: LynxModule) {
 	val motors = Motors(this)
@@ -91,12 +95,24 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 		return encoders.getTicksEncoder(port)
 	}
 
-	fun getRadiansEncoder(port: Byte, ticksPerRevolution: Double): RadiansEncoder {
-		return encoders.getRadiansEncoder(port, ticksPerRevolution)
+	fun getAttachedEncoder(port: Byte) : UnitEncoder<*>? {
+		return encoders.getEncoder(port)
 	}
 
-	fun getDegreesEncoder(port: Byte, ticksPerRevolution: Double): DegreesEncoder {
-		return encoders.getDegreesEncoder(port, ticksPerRevolution)
+	fun getDistanceEncoder(port: Byte, ticksPerUnit: Double, unit: DistanceUnit): DistanceEncoder {
+		return encoders.getDistanceEncoder(port, ticksPerUnit, unit);
+	}
+
+	fun getAngleEncoder(port: Byte, ticksPerRevolution: Double, angleUnit: AngleUnit): AngleEncoder {
+		return encoders.getAngleEncoder(port, ticksPerRevolution, angleUnit)
+	}
+
+	fun getDegreeEncoder(port: Byte, ticksPerRevolution: Double): AngleEncoder {
+		return getAngleEncoder(port, ticksPerRevolution, AngleUnits.DEGREE)
+	}
+
+	fun getRadianEncoder(port: Byte, ticksPerRevolution: Double): AngleEncoder {
+		return getAngleEncoder(port, ticksPerRevolution, AngleUnits.RADIAN)
 	}
 
 	fun getServo(port: Byte): CalcifiedServo {
