@@ -10,12 +10,12 @@ import dev.frozenmilk.dairy.calcified.collections.Encoders
 import dev.frozenmilk.dairy.calcified.collections.I2CDevices
 import dev.frozenmilk.dairy.calcified.collections.Motors
 import dev.frozenmilk.dairy.calcified.collections.PWMDevices
-import dev.frozenmilk.dairy.calcified.hardware.motor.AngleEncoder
-import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedEncoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.AngleEncoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.CalcifiedEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedMotor
-import dev.frozenmilk.dairy.calcified.hardware.motor.DistanceEncoder
-import dev.frozenmilk.dairy.calcified.hardware.motor.TicksEncoder
-import dev.frozenmilk.dairy.calcified.hardware.motor.UnitEncoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.DistanceEncoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.Encoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.TicksEncoder
 import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
 import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedIMU
 import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalInput
@@ -95,7 +95,7 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 		return encoders.getTicksEncoder(port)
 	}
 
-	fun getAttachedEncoder(port: Byte) : UnitEncoder<*>? {
+	fun getAttachedEncoder(port: Byte) : Encoder<*>? {
 		return encoders.getEncoder(port)
 	}
 

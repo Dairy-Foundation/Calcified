@@ -3,22 +3,21 @@ package dev.frozenmilk.dairy.calcified.collections
 import com.qualcomm.robotcore.hardware.LynxModuleImuType
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
-import dev.frozenmilk.dairy.calcified.hardware.motor.AngleEncoder
-import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
-import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedContinuousServo
-import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedEncoder
-import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedIMU
+import dev.frozenmilk.dairy.calcified.hardware.encoder.AngleEncoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.DistanceEncoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.Encoder
+import dev.frozenmilk.dairy.calcified.hardware.encoder.TicksEncoder
 import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedMotor
-import dev.frozenmilk.dairy.calcified.hardware.motor.DistanceEncoder
-import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedServo
+import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
+import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedIMU
 import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalInput
 import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalOutput
+import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedContinuousServo
+import dev.frozenmilk.dairy.calcified.hardware.servo.CalcifiedServo
 import dev.frozenmilk.dairy.calcified.hardware.servo.PWMDevice
-import dev.frozenmilk.dairy.calcified.hardware.motor.TicksEncoder
-import dev.frozenmilk.dairy.calcified.hardware.motor.UnitEncoder
-import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
-import dev.frozenmilk.util.units.DistanceUnit
 import dev.frozenmilk.util.units.AngleUnit
+import dev.frozenmilk.util.units.DistanceUnit
+import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 
 abstract class CalcifiedDeviceMap<T> internal constructor(protected val module: CalcifiedModule, private val map: MutableMap<Byte, T> = mutableMapOf()) : MutableMap<Byte, T> by map
 
@@ -33,23 +32,23 @@ class Motors internal constructor(module: CalcifiedModule) : CalcifiedDeviceMap<
 
 class PWMDevices internal constructor(module: CalcifiedModule) : CalcifiedDeviceMap<PWMDevice>(module) {
 	fun getServo(port: Byte): CalcifiedServo {
-		if (port !in LynxConstants.INITIAL_SERVO_PORT until LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS - 1) throw IllegalArgumentException("$port is not in the acceptable port range [${LynxConstants.INITIAL_SERVO_PORT}, ${LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS - 1}]")
-		if (this.containsKey(port) && this[port] !is CalcifiedServo) {
+		if (port !in LynxConstants.INITIAL_SERVO_PORT until LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS) throw IllegalArgumentException("$port is not in the acceptable port range [${LynxConstants.INITIAL_SERVO_PORT}, ${LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS - 1}]")
+		if (!this.containsKey(port) || this[port] !is CalcifiedServo) {
 			this[port] = CalcifiedServo(module, port)
 		}
 		return (this[port] as CalcifiedServo)
 	}
 
 	fun getContinuousServo(port: Byte): CalcifiedContinuousServo {
-		if (port !in LynxConstants.INITIAL_SERVO_PORT until LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS - 1) throw IllegalArgumentException("$port is not in the acceptable port range [${LynxConstants.INITIAL_SERVO_PORT}, ${LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS - 1}]")
-		if (this.containsKey(port) || this[port] !is CalcifiedContinuousServo) {
+		if (port !in LynxConstants.INITIAL_SERVO_PORT until LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS) throw IllegalArgumentException("$port is not in the acceptable port range [${LynxConstants.INITIAL_SERVO_PORT}, ${LynxConstants.INITIAL_SERVO_PORT + LynxConstants.NUMBER_OF_SERVO_CHANNELS - 1}]")
+		if (!this.containsKey(port) || this[port] !is CalcifiedContinuousServo) {
 			this[port] = CalcifiedContinuousServo(module, port)
 		}
 		return (this[port] as CalcifiedContinuousServo)
 	}
 }
 
-class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMap<CalcifiedEncoder<*>>(module) {
+class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMap<Encoder<*>>(module) {
 
 	/**
 	 * if the port is empty, makes a new [TicksEncoder], else, overrides the encoder on the port
@@ -70,13 +69,13 @@ class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMa
 	 *
 	 * @return Overrides the encoder on the port with a [UnitEncoder] of the supplied type, with the [ticksPerUnit] specified
 	 */
-	inline fun <reified T : UnitEncoder<*>> getEncoder(lazySupplier: (TicksEncoder) -> T, port: Byte): T {
+	inline fun <reified T : Encoder<*>> getEncoder(lazySupplier: (TicksEncoder) -> T, port: Byte): T {
 		val ticksEncoder = getTicksEncoder(port)
 		this[port] = lazySupplier(ticksEncoder)
 		return this[port] as? T ?: throw IllegalStateException("something went wrong while creating a new encoder, this shouldn't be reachable")
 	}
 
-	inline fun <reified T : UnitEncoder<*>> getEncoder(port: Byte): T? {
+	inline fun <reified T : Encoder<*>> getEncoder(port: Byte): T? {
 		return this[port] as? T
 	}
 	/**

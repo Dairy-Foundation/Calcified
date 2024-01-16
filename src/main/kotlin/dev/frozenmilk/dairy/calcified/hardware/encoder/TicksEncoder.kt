@@ -1,34 +1,30 @@
-package dev.frozenmilk.dairy.calcified.hardware.motor
+package dev.frozenmilk.dairy.calcified.hardware.encoder
 
+import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.calcified.hardware.controller.BufferedCachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.controller.CachedCompoundSupplier
-import dev.frozenmilk.util.units.Distance
-import dev.frozenmilk.util.units.DistanceUnit
 
-class DistanceEncoder(ticksEncoder: TicksEncoder,
-					  ticksPerUnit: Double,
-					  distanceUnit: DistanceUnit) : UnitEncoder<Distance>(ticksEncoder) {
-	override var offset: Distance = position
-	override var position: Distance
-		get() { return positionSupplier.get() }
-		set(value) { offset = value - positionSupplier.get() }
+class TicksEncoder internal constructor(module: CalcifiedModule, port: Byte) : CalcifiedEncoder<Int>(module, port) {
+	override val positionSupplier: CachedCompoundSupplier<Int, Double> = object : CachedCompoundSupplier<Int, Double> {
+		private var cachedPosition: Int? = null
 
-
-	override val positionSupplier = object : CachedCompoundSupplier<Distance, Double> {
-		private var cachedDistance: Distance? = null
-		override fun findError(target: Distance): Double {
-			return (position - target).into(distanceUnit).value
+		/**
+		 * returns error in ticks, consider wrapping this encoder in a different UnitEncoder to use error with some other, more predictable unit
+		 */
+		override fun findError(target: Int): Double {
+			return (target - get()).toDouble()
 		}
 
 		override fun clearCache() {
-			cachedDistance = null
+			cachedPosition = null
 		}
 
-		override fun get(): Distance {
-			if (cachedDistance == null) cachedDistance = Distance(distanceUnit, (ticksEncoder.positionSupplier.get().toDouble() / ticksPerUnit) * direction.multiplier)
-			return cachedDistance!! - offset
+		override fun get(): Int {
+			if (cachedPosition == null) cachedPosition = module.bulkData.getEncoder(port.toInt()) * direction.multiplier
+			return cachedPosition!! - offset
 		}
 	}
+
 	override val velocitySupplier = object : BufferedCachedCompoundSupplier<Double, Double> {
 		private var cachedVelocity: Double? = null
 		private var cachedRawVelocity: Double? = null
@@ -36,11 +32,6 @@ class DistanceEncoder(ticksEncoder: TicksEncoder,
 
 		override fun findError(target: Double): Double {
 			return target - get()
-		}
-
-		override fun getRaw(): Double {
-			get()
-			return cachedRawVelocity!!
 		}
 
 		override fun clearCache() {
@@ -65,6 +56,28 @@ class DistanceEncoder(ticksEncoder: TicksEncoder,
 			}
 			return cachedVelocity!!
 		}
+
+		override fun getRaw(): Double {
+			get()
+			return cachedRawVelocity!!
+		}
 	}
+	override var offset: Int = 0
+	override var position: Int
+		get() {
+			return positionSupplier.get()
+		}
+		set(value) {
+			offset = value - positionSupplier.get()
+		}
+	override val cachedTime: Double
+		get() {
+			return module.cachedTime
+		}
+	override val previousCachedTime: Double
+		get() {
+			return module.previousCachedTime
+		}
+
 	var velocityTimeWindow = 0.2
 }
