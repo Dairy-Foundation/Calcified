@@ -304,7 +304,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 		constant values from the BHI260 IMU
 		 */
 
-		val QUATERNION_SCALE_FACTOR: Double = BHI260IMU::class.java.getDeclaredField("QUATERNION_SCALE_FACTOR").get(null) as Double
+		val QUATERNION_SCALE_FACTOR: Double = BHI260IMU::class.java.getDeclaredField("QUATERNION_SCALE_FACTOR").apply { this.isAccessible = true }.get(null) as Double
 
 		// We want these fields to get initialized even if initialization ends up failing
 		val gameRVRequestGpio = AndroidBoard.getInstance().bhi260Gpio5
