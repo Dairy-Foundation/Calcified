@@ -1,6 +1,5 @@
 package dev.frozenmilk.dairy.calcified
 
-import android.content.Context
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants
@@ -13,8 +12,6 @@ import dev.frozenmilk.dairy.core.OpModeWrapper
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
 import dev.frozenmilk.util.cell.LateInitCell
 import dev.frozenmilk.util.cell.LazyCell
-import org.firstinspires.ftc.ftccommon.external.OnCreate
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta.Flavor
 import java.lang.annotation.Inherited
 
@@ -53,18 +50,6 @@ object Calcified : Feature {
 					}
 				}
 			}
-
-
-	/**
-	 * does not need to be called by the user,
-	 *
-	 * todo test this as a method of self registration
-	 */
-	@OnCreate
-	@JvmStatic
-	fun registerFeature(@Suppress("UNUSED_PARAMETER") context: Context) {
-		FeatureRegistrar.registerFeature(this)
-	}
 
 	/**
 	 * all calcified modules found this OpMode
