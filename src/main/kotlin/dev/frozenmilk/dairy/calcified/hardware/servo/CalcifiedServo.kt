@@ -1,6 +1,6 @@
 package dev.frozenmilk.dairy.calcified.hardware.servo
 
-import com.qualcomm.hardware.lynx.commands.core.LynxSetPWMConfigurationCommand
+import com.qualcomm.hardware.lynx.commands.core.LynxSetServoConfigurationCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetServoEnableCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetServoPulseWidthCommand
 import com.qualcomm.robotcore.hardware.PwmControl.PwmRange
@@ -15,23 +15,29 @@ class CalcifiedServo internal constructor(val module: CalcifiedModule, val port:
 	override var pwmRange: PwmRange = PwmRange.defaultRange
 		set(value) {
 			if (value.usFrame != field.usFrame) {
-				LynxSetPWMConfigurationCommand(module.lynxModule, port.toInt(), value.usFrame.toInt()).send()
+				LynxSetServoConfigurationCommand(module.lynxModule, port.toInt(), value.usFrame.toInt()).send()
 			}
 			field = value
 		}
+
 	var cachingTolerance = 0.001
 
 	var enabled = true
 		set(value) {
+			firstEnable = true
 			if (field != value) {
 				LynxSetServoEnableCommand(module.lynxModule, port.toInt(), value).send()
 				field = value;
 			}
 		}
 
+	private var firstEnable = false
 	var position = Double.NaN
 		set(value) {
-			if (!enabled) return
+			if (!enabled) {
+				if (!firstEnable) enabled = true
+				else return
+			}
 			var correctedValue = value.coerceIn(0.0, 1.0)
 			if (direction == Direction.REVERSE) correctedValue = 1 - correctedValue
 			if (field.isNaN() || abs(field - correctedValue) >= cachingTolerance || correctedValue == 0.0 && field != 0.0 || correctedValue == 1.0 && field != 1.0) {
@@ -54,4 +60,20 @@ class CalcifiedServo internal constructor(val module: CalcifiedModule, val port:
 		this.position = position
 		cachingTolerance = tolerance
 	}
+
+	init {
+		LynxSetServoConfigurationCommand(module.lynxModule, port.toInt(), pwmRange.usFrame.toInt()).send()
+//		CompletableFuture.runAsync {
+//			tryEnable()
+//		}
+	}
+//
+//	private fun tryEnable() {
+//		try {
+//			LynxSetServoEnableCommand(module.lynxModule, port.toInt(), true).send()
+//		}
+//		catch (_: Exception) {
+//			tryEnable()
+//		}
+//	}
 }
