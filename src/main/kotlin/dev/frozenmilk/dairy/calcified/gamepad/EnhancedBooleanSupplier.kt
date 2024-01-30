@@ -3,12 +3,10 @@ package dev.frozenmilk.dairy.calcified.gamepad
 import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.OpModeWrapper
-import dev.frozenmilk.dairy.core.dependencyresolution.dependencies.Dependency
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
 import java.util.function.Supplier
 
 class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, private val risingDebounce: Long, private val fallingDebounce: Long) : Supplier<Boolean>, Feature {
-	// todo review and potentially change to be lazy
 	constructor(booleanSupplier: Supplier<Boolean>) : this(booleanSupplier, 0, 0)
 	private var previous = booleanSupplier.get()
 	private var current = booleanSupplier.get()
@@ -17,7 +15,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	var toggleFalse = booleanSupplier.get()
 		private set
 	private var timeMarker = 0L
-	fun update() {
+	private fun update() {
 		previous = current
 		val time = System.nanoTime()
 		if(!current && booleanSupplier.get()){
@@ -40,6 +38,9 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	}
 
 	private var valid = false
+	fun invalidate() {
+		valid = false
+	}
 	override fun get(): Boolean {
 		if (!valid) {
 			update()
@@ -47,8 +48,9 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 		}
 		return current
 	}
-	val whenTrue: Boolean get() { return current and !previous }
-	val whenFalse: Boolean get() { return !current and previous }
+	val state: Boolean get() { return get() }
+	val whenTrue: Boolean get() { return get() && !previous }
+	val whenFalse: Boolean get() { return !get() && previous }
 
 	/**
 	 * non-mutating
@@ -110,7 +112,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	//
 	// Impl Feature:
 	//
-	override val dependencies: Set<Dependency<*, *>> = DependencySet(this)
+	override val dependencies = DependencySet(this)
 			.yields()
 
 	init {
@@ -122,7 +124,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	}
 
 	override fun postUserInitHook(opMode: OpModeWrapper) {
-		valid = false
+		invalidate()
 	}
 
 	override fun preUserInitLoopHook(opMode: OpModeWrapper) {
@@ -130,7 +132,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	}
 
 	override fun postUserInitLoopHook(opMode: OpModeWrapper) {
-		valid = false
+		invalidate()
 	}
 
 	override fun preUserStartHook(opMode: OpModeWrapper) {
@@ -138,7 +140,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	}
 
 	override fun postUserStartHook(opMode: OpModeWrapper) {
-		valid = false
+		invalidate()
 	}
 
 	override fun preUserLoopHook(opMode: OpModeWrapper) {
@@ -146,7 +148,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	}
 
 	override fun postUserLoopHook(opMode: OpModeWrapper) {
-		valid = false
+		invalidate()
 	}
 
 	override fun preUserStopHook(opMode: OpModeWrapper) {
@@ -154,6 +156,7 @@ class EnhancedBooleanSupplier(private val booleanSupplier: Supplier<Boolean>, pr
 	}
 
 	override fun postUserStopHook(opMode: OpModeWrapper) {
-		valid = false
+		invalidate()
+		FeatureRegistrar.deregisterFeature(this)
 	}
 }
