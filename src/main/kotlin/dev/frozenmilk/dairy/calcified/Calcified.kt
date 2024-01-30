@@ -1,7 +1,6 @@
 package dev.frozenmilk.dairy.calcified
 
 import com.qualcomm.hardware.lynx.LynxModule
-import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants
 import dev.frozenmilk.dairy.calcified.gamepad.CalcifiedGamepad
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
@@ -10,7 +9,6 @@ import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.OpModeWrapper
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
-import dev.frozenmilk.util.cell.LateInitCell
 import dev.frozenmilk.util.cell.LazyCell
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta.Flavor
 import java.lang.annotation.Inherited
@@ -58,15 +56,23 @@ object Calcified : Feature {
 	var modules: Array<CalcifiedModule> = emptyArray()
 		private set
 
-	private var boringGamepad1: Gamepad by LateInitCell()
-	private var boringGamepad2: Gamepad by LateInitCell()
+	private val gamepad1Cell = LazyCell {
+		CalcifiedGamepad(
+			FeatureRegistrar.activeOpMode?.gamepad1 ?: throw IllegalStateException("OpMode not inited, cannot yet access gamepad1")
+		)
+	}
+	@JvmStatic
+	val gamepad1: CalcifiedGamepad
+		get() { return gamepad1Cell.get() }
 
-	private val gamepad1Cell = LazyCell { CalcifiedGamepad(boringGamepad1) }
+	private val gamepad2Cell = LazyCell {
+		CalcifiedGamepad(
+			FeatureRegistrar.activeOpMode?.gamepad2 ?: throw IllegalStateException("OpMode not inited, cannot yet access gamepad2")
+		)
+	}
 	@JvmStatic
-	val gamepad1: CalcifiedGamepad by gamepad1Cell
-	private val gamepad2Cell = LazyCell { CalcifiedGamepad(boringGamepad2) }
-	@JvmStatic
-	val gamepad2: CalcifiedGamepad by gamepad2Cell
+	val gamepad2: CalcifiedGamepad
+		get() { return gamepad2Cell.get() }
 
 	private val controlHubCell = LazyCell {
 		if (!FeatureRegistrar.opModeActive) throw IllegalStateException("OpMode not inited, cannot yet access the control hub")
@@ -122,9 +128,6 @@ object Calcified : Feature {
 			expansionHubCell.invalidate()
 		}
 
-		boringGamepad1 = opMode.gamepad1
-		boringGamepad2 = opMode.gamepad2
-
 		gamepad1Cell.invalidate()
 		gamepad2Cell.invalidate()
 
@@ -164,6 +167,8 @@ object Calcified : Feature {
 		if (crossPollinate && opMode.opModeType == Flavor.TELEOP) {
 			clearModules()
 		}
+		gamepad1Cell.invalidate()
+		gamepad2Cell.invalidate()
 	}
 
 	@Retention(AnnotationRetention.RUNTIME)
