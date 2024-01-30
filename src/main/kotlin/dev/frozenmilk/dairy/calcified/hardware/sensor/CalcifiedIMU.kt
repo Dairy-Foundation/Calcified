@@ -142,7 +142,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val headingVelocity: Double
 		get() {
-			return previousOrientation.zRot.intoRadians().findShortestDistance(heading) / (cachedTime - previousTime) / 1E9
+			return previousOrientation.zRot.intoRadians().findShortestDistance(heading) / ((cachedTime - previousTime) / 1E9)
 		}
 
 	/**
