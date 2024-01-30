@@ -134,7 +134,7 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 	}
 
 	@JvmOverloads
-	fun getIMU(port: Byte, lynxModuleImuType: LynxModuleImuType, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU(port: Byte, lynxModuleImuType: LynxModuleImuType = lynxModule.imuType, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU(port, lynxModuleImuType, angleBasedRobotOrientation)
 	}
 
