@@ -21,7 +21,7 @@ abstract class ControllerCompiler<IN, OUT> protected constructor(
 	protected fun internalWithErrorSupplier(errorSupplier: ErrorSupplier<in IN, out OUT>, indexToError: Boolean) = indexedToUsrErr + (errorSupplier to indexToError)
 
 	/**
-	 * @param indexToError an error supplier that is NOT indexed to error will not be included in the results of [TODO] on the final compiled controller
+	 * @param indexToError an error supplier that is NOT indexed to error will not be included in the results of the final compiled controller
 	 */
 	abstract fun withErrorSupplier(errorSupplier: ErrorSupplier<in IN, out OUT>, indexToError: Boolean = true): ControllerCompiler<IN, OUT>
 

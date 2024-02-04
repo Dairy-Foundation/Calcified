@@ -1,4 +1,4 @@
-package dev.frozenmilk.dairy.calcified.hardware.servo
+package dev.frozenmilk.dairy.calcified.hardware.pwm
 
 import com.qualcomm.robotcore.hardware.PwmControl
 

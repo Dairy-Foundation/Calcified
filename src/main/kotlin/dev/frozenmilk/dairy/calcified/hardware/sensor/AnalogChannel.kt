@@ -1,7 +1,7 @@
 package dev.frozenmilk.dairy.calcified.hardware.sensor
 
-import dev.frozenmilk.dairy.calcified.gamepad.EnhancedBooleanSupplier
-import dev.frozenmilk.dairy.calcified.gamepad.EnhancedNumberSupplier
+import dev.frozenmilk.dairy.core.util.supplier.EnhancedBooleanSupplier
+import dev.frozenmilk.dairy.core.util.supplier.EnhancedNumberSupplier
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import java.util.function.Supplier
 

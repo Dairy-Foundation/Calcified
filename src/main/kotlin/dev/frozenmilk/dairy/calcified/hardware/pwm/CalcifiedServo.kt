@@ -1,4 +1,4 @@
-package dev.frozenmilk.dairy.calcified.hardware.servo
+package dev.frozenmilk.dairy.calcified.hardware.pwm
 
 import com.qualcomm.hardware.lynx.commands.core.LynxSetServoConfigurationCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetServoEnableCommand
@@ -22,7 +22,7 @@ class CalcifiedServo internal constructor(val module: CalcifiedModule, val port:
 
 	var cachingTolerance = 0.001
 
-	var enabled = true
+	var enabled = false
 		set(value) {
 			firstEnable = true
 			if (field != value) {
@@ -34,10 +34,7 @@ class CalcifiedServo internal constructor(val module: CalcifiedModule, val port:
 	private var firstEnable = false
 	var position = Double.NaN
 		set(value) {
-			if (!enabled) {
-				if (!firstEnable) enabled = true
-				else return
-			}
+			if (!enabled && firstEnable) return
 			var correctedValue = value.coerceIn(0.0, 1.0)
 			if (direction == Direction.REVERSE) correctedValue = 1 - correctedValue
 			if (field.isNaN() || abs(field - correctedValue) >= cachingTolerance || correctedValue == 0.0 && field != 0.0 || correctedValue == 1.0 && field != 1.0) {
@@ -49,6 +46,7 @@ class CalcifiedServo internal constructor(val module: CalcifiedModule, val port:
 				LynxSetServoPulseWidthCommand(module.lynxModule, port.toInt(), pwm).send()
 				field = correctedValue
 			}
+			if (!firstEnable) enabled = true
 		}
 
 	/**
@@ -63,17 +61,5 @@ class CalcifiedServo internal constructor(val module: CalcifiedModule, val port:
 
 	init {
 		LynxSetServoConfigurationCommand(module.lynxModule, port.toInt(), pwmRange.usFrame.toInt()).send()
-//		CompletableFuture.runAsync {
-//			tryEnable()
-//		}
 	}
-//
-//	private fun tryEnable() {
-//		try {
-//			LynxSetServoEnableCommand(module.lynxModule, port.toInt(), true).send()
-//		}
-//		catch (_: Exception) {
-//			tryEnable()
-//		}
-//	}
 }

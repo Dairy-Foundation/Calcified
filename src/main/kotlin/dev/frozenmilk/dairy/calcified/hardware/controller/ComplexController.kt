@@ -4,9 +4,9 @@ import dev.frozenmilk.dairy.calcified.Calcified
 import dev.frozenmilk.dairy.calcified.hardware.motor.SimpleMotor
 import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.FeatureRegistrar
-import dev.frozenmilk.dairy.core.OpModeWrapper
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencies.Dependency
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
+import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import java.util.function.Supplier
 
 abstract class ComplexController<IN, OUT> (var target: IN, var toleranceEpsilon: Double, val motors: SimpleMotor, val errorCalculators: Map<ErrorSupplier<in IN, out OUT>, ErrorController<in OUT>>, val positionCalculators: Map<Supplier<out IN>, PositionController<in IN>>, indexedToUsrErr: Map<ErrorSupplier<in IN, out OUT>, Boolean>) : Feature {
@@ -46,11 +46,11 @@ abstract class ComplexController<IN, OUT> (var target: IN, var toleranceEpsilon:
 
 	var enabled = true
 
-	override fun postUserInitLoopHook(opMode: OpModeWrapper) {
+	override fun postUserInitLoopHook(opMode: Wrapper) {
 		if (enabled) update()
 	}
 
-	override fun postUserLoopHook(opMode: OpModeWrapper) {
+	override fun postUserLoopHook(opMode: Wrapper) {
 		if (enabled) update()
 	}
 }

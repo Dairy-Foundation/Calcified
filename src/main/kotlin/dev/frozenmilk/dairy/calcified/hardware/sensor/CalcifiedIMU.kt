@@ -41,7 +41,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 		}
 	}
 
-	private var offsetOrientation = -initialAngles // todo check, but should be good, as this never gets accessed
+	private var offsetOrientation = -initialAngles
 	private var previousOrientation = initialAngles
 	private var cached = true
 	private var cachedTime = System.nanoTime()
@@ -265,7 +265,6 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 					throw FailedToRetrieveQuaternionException()
 				}
 
-				//todo removed some async protection stuff, may cause issues
 				gameRVRequestGpio.setState(true)
 				val timestamp: Long = System.nanoTime()
 				// We need to wait at least 500 microseconds before performing the I2C read. Fortunately
