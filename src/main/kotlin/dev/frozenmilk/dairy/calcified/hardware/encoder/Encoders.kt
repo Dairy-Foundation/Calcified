@@ -3,8 +3,8 @@ package dev.frozenmilk.dairy.calcified.hardware.encoder
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants
 import dev.frozenmilk.dairy.calcified.CalcifiedDeviceMap
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
-import dev.frozenmilk.util.units.AngleUnit
-import dev.frozenmilk.util.units.DistanceUnit
+import dev.frozenmilk.util.units.angle.AngleUnit
+import dev.frozenmilk.util.units.distance.DistanceUnit
 
 class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMap<Encoder<*>>(module) {
 

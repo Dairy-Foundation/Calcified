@@ -3,8 +3,8 @@ package dev.frozenmilk.dairy.calcified.hardware.encoder
 import dev.frozenmilk.dairy.calcified.hardware.controller.BufferedCachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.controller.CachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.motor.Direction
-import dev.frozenmilk.util.units.Distance
-import dev.frozenmilk.util.units.DistanceUnit
+import dev.frozenmilk.util.units.distance.Distance
+import dev.frozenmilk.util.units.distance.DistanceUnit
 
 class DistanceEncoder(private val encoder: Encoder<Int>,
 					  ticksPerUnit: Double,

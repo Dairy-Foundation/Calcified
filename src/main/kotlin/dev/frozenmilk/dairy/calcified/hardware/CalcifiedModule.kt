@@ -23,9 +23,9 @@ import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalOutput
 import dev.frozenmilk.dairy.calcified.hardware.pwm.CalcifiedContinuousServo
 import dev.frozenmilk.dairy.calcified.hardware.pwm.CalcifiedServo
 import dev.frozenmilk.util.cell.LateInitCell
-import dev.frozenmilk.util.units.DistanceUnit
-import dev.frozenmilk.util.units.AngleUnit
-import dev.frozenmilk.util.units.AngleUnits
+import dev.frozenmilk.util.units.distance.DistanceUnit
+import dev.frozenmilk.util.units.angle.AngleUnit
+import dev.frozenmilk.util.units.angle.AngleUnits
 import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 
 class CalcifiedModule(val lynxModule: LynxModule) {

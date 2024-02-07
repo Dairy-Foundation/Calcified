@@ -3,7 +3,7 @@ package dev.frozenmilk.dairy.calcified.hardware.controller
 import dev.frozenmilk.util.profile.AsymmetricMotionProfile
 import dev.frozenmilk.util.profile.ProfileConstraints
 import dev.frozenmilk.util.profile.ProfileStateComponent
-import dev.frozenmilk.util.units.Angle
+import dev.frozenmilk.util.units.angle.Angle
 import kotlin.math.cos
 
 @FunctionalInterface

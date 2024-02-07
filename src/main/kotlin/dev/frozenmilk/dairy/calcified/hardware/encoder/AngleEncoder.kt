@@ -3,8 +3,8 @@ package dev.frozenmilk.dairy.calcified.hardware.encoder
 import dev.frozenmilk.dairy.calcified.hardware.controller.BufferedCachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.controller.CachedCompoundSupplier
 import dev.frozenmilk.dairy.calcified.hardware.motor.Direction
-import dev.frozenmilk.util.units.Angle
-import dev.frozenmilk.util.units.AngleUnit
+import dev.frozenmilk.util.units.angle.Angle
+import dev.frozenmilk.util.units.angle.AngleUnit
 
 class AngleEncoder (private val encoder: Encoder<Int>,
 										ticksPerWrap: Double,
@@ -42,7 +42,7 @@ class AngleEncoder (private val encoder: Encoder<Int>,
 	override val positionSupplier = object : CachedCompoundSupplier<Angle, Double> {
 		private var cachedAngle: Angle? = null
 		override fun findError(target: Angle): Double {
-			return get().into(angleUnit).findShortestDistance(target)
+			return get().into(angleUnit).findShortestDistance(target).value
 		}
 
 		override fun clearCache() {

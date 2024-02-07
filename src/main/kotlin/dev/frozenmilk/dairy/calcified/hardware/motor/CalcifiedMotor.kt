@@ -44,5 +44,10 @@ class CalcifiedMotor internal constructor(val module: CalcifiedModule, val port:
 	override fun getCurrent(unit: CurrentUnit): Double {
 		return unit.convert(LynxGetADCCommand(module.lynxModule, LynxGetADCCommand.Channel.motorCurrent(port.toInt()), LynxGetADCCommand.Mode.ENGINEERING).sendReceive().value.toDouble(), CurrentUnit.MILLIAMPS)
 	}
+
+	init {
+		LynxSetMotorChannelEnableCommand(module.lynxModule, port.toInt(), true).send()
+		LynxSetMotorChannelModeCommand(module.lynxModule, port.toInt(), DcMotor.RunMode.RUN_WITHOUT_ENCODER, ZeroPowerBehaviour.FLOAT.wrapping)
+	}
 }
 

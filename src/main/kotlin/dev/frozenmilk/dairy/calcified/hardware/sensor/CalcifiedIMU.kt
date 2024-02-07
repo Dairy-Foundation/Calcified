@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.hardware.QuaternionBasedImuHelper.FailedToRetrieve
 import com.qualcomm.robotcore.hardware.TimestampedData
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.calcified.hardware.controller.CompoundSupplier
-import dev.frozenmilk.util.units.Angle
-import dev.frozenmilk.util.units.AngleUnits
+import dev.frozenmilk.util.units.angle.Angle
+import dev.frozenmilk.util.units.angle.AngleUnits
 import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
@@ -94,7 +94,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val headingSupplier: CompoundSupplier<Angle, Double> = object : CompoundSupplier<Angle, Double> {
 		override fun findError(target: Angle): Double {
-			return get().intoRadians().findShortestDistance(target)
+			return get().intoRadians().findShortestDistance(target).value
 		}
 
 		override fun get(): Angle {
@@ -114,7 +114,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val xRotSupplier: CompoundSupplier<Angle, Double> = object : CompoundSupplier<Angle, Double> {
 		override fun findError(target: Angle): Double {
-			return get().intoRadians().findShortestDistance(target)
+			return get().intoRadians().findShortestDistance(target).value
 		}
 
 		override fun get(): Angle {
@@ -129,7 +129,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val yRotSupplier: CompoundSupplier<Angle, Double> = object : CompoundSupplier<Angle, Double> {
 		override fun findError(target: Angle): Double {
-			return get().intoRadians().findShortestDistance(target)
+			return get().intoRadians().findShortestDistance(target).value
 		}
 
 		override fun get(): Angle {
@@ -142,7 +142,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val headingVelocity: Double
 		get() {
-			return previousOrientation.zRot.intoRadians().findShortestDistance(heading) / ((cachedTime - previousTime) / 1E9)
+			return previousOrientation.zRot.intoRadians().findShortestDistance(heading).value / ((cachedTime - previousTime) / 1E9)
 		}
 
 	/**
@@ -184,7 +184,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val xRotVelocity: Double
 		get() {
-			return previousOrientation.xRot.intoRadians().findShortestDistance(orientation.xRot) / (cachedTime - previousTime) / 1E9
+			return previousOrientation.xRot.intoRadians().findShortestDistance(orientation.xRot).value / (cachedTime - previousTime) / 1E9
 		}
 
 	/**
@@ -205,7 +205,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	 */
 	val yRotVelocity: Double
 		get() {
-			return previousOrientation.yRot.intoRadians().findShortestDistance(orientation.yRot) / (cachedTime - previousTime) / 1E9
+			return previousOrientation.yRot.intoRadians().findShortestDistance(orientation.yRot).value / (cachedTime - previousTime) / 1E9
 		}
 
 	/**
