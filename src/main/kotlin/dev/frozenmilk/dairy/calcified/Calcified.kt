@@ -17,13 +17,6 @@ import java.lang.annotation.Inherited
  */
 object Calcified : Feature {
 	/**
-	 * @see Attach.crossPollinate
-	 */
-	@JvmStatic
-	var crossPollinate = true
-		private set
-
-	/**
 	 * @see Attach.automatedCacheHandling
 	 */
 	@JvmStatic
@@ -35,15 +28,13 @@ object Calcified : Feature {
 	 */
 	override val dependencies = DependencySet(this)
 			.includesExactlyOneOf(DairyCore::class.java, Attach::class.java).bindOutputTo {
-				when (it) {
+				automatedCacheHandling = when (it) {
 					is Attach -> {
-						crossPollinate = it.crossPollinate
-						automatedCacheHandling = it.automatedCacheHandling
+						it.automatedCacheHandling
 					}
 
 					else -> {
-						crossPollinate = true
-						automatedCacheHandling = true
+						true
 					}
 				}
 			}
@@ -93,21 +84,12 @@ object Calcified : Feature {
 	}
 
 	override fun preUserInitHook(opMode: Wrapper) {
-		// if cross pollination is enabled, and the OpMode type is Teleop, then we want to keep our pre-existing modules and hubs
-		// however, if we have no modules (like after a teleop or at the very start) then we want to find new modules too
-		// if cross pollination is disabled, we only want to find new stuff if the modules are empty
-		if(modules.isEmpty() || (crossPollinate && when(opMode.opModeType) {
-					Flavor.TELEOP -> false
-					Flavor.AUTONOMOUS -> true
-					Flavor.SYSTEM -> false
-				})) {
-			modules = opMode.opMode.hardwareMap.getAll(LynxModule::class.java).map {
-				CalcifiedModule(it)
-			}.toTypedArray()
+		modules = opMode.opMode.hardwareMap.getAll(LynxModule::class.java).map {
+			CalcifiedModule(it)
+		}.toTypedArray()
 
-			controlHubCell.invalidate()
-			expansionHubCell.invalidate()
-		}
+		controlHubCell.invalidate()
+		expansionHubCell.invalidate()
 
 		refreshCaches()
 	}
@@ -141,12 +123,6 @@ object Calcified : Feature {
 		refreshCaches()
 	}
 
-	override fun postUserStopHook(opMode: Wrapper) {
-		if (crossPollinate && opMode.opModeType == Flavor.TELEOP) {
-			clearModules()
-		}
-	}
-
 	@Retention(AnnotationRetention.RUNTIME)
 	@Target(AnnotationTarget.CLASS)
 	@MustBeDocumented
@@ -160,14 +136,5 @@ object Calcified : Feature {
 			 * Clearing the caches should probably be done using [CalcifiedModule.refreshBulkCache]
 			 */
 			val automatedCacheHandling: Boolean = true,
-			/**
-			 * Controls when [Calcified] drops its modules and this hardware objects
-			 *
-			 * Set to false if you want to prompt [Calcified] to drop its hardware objects by hand.
-			 * This should be done using [Calcified.clearModules]
-			 *
-			 * By default, drops hardware objects at the start of an auto, and at the end of a teleop, allowing values to be carried over from an auto to a teleop
-			 */
-			val crossPollinate: Boolean = true
 	)
 }

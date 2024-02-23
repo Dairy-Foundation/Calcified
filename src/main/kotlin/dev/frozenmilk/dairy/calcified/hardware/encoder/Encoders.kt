@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.configuration.LynxConstants
 import dev.frozenmilk.dairy.calcified.CalcifiedDeviceMap
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.util.units.angle.AngleUnit
+import dev.frozenmilk.util.units.angle.Wrapping
 import dev.frozenmilk.util.units.distance.DistanceUnit
 
 class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMap<Encoder<*>>(module) {
@@ -23,9 +24,9 @@ class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMa
 	}
 
 	/**
-	 * This method is useful for if you have your own [UnitEncoder] overrides, for your own types, most of the time you want to use one of the other get<type>Encoder methods on this module
+	 * This method is useful for if you have your own [Encoder] overrides, for your own types, most of the time you want to use one of the other get<type>Encoder methods on this module
 	 *
-	 * @return Overrides the encoder on the port with a [UnitEncoder] of the supplied type, with the [ticksPerUnit] specified
+	 * @return Overrides the encoder on the port with a [Encoder] of the supplied type
 	 */
 	inline fun <reified T : Encoder<*>> getEncoder(lazySupplier: (TicksEncoder) -> T, port: Byte): T {
 		val ticksEncoder = getTicksEncoder(port)
@@ -36,18 +37,22 @@ class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMa
 	inline fun <reified T : Encoder<*>> getEncoder(port: Byte): T? {
 		return this[port] as? T
 	}
+
 	/**
-	 * overrides the encoder on the port with an [AngleEncoder], with the [ticksPerRevolution] specified, that outputs values as [angleUnit]
+	 * overrides the encoder on the port with an [AngleEncoder], with the [ticksPerRevolution] and [wrapping] specified
 	 */
-	fun getAngleEncoder(port: Byte, ticksPerRevolution: Double, angleUnit: AngleUnit): AngleEncoder {
+	fun getAngleEncoder(port: Byte, wrapping: Wrapping, ticksPerRevolution: Double): AngleEncoder {
 		return getEncoder({
-			AngleEncoder(it, ticksPerRevolution, angleUnit)
+			AngleEncoder(it, wrapping, ticksPerRevolution)
 		}, port)
 	}
 
-	fun getDistanceEncoder(port: Byte, ticksPerUnit: Double, distance: DistanceUnit): DistanceEncoder {
+	/**
+	 * overrides the encoder on the port with a [DistanceEncoder], with the [ticksPerUnit] specified
+	 */
+	fun getDistanceEncoder(port: Byte, unit: DistanceUnit, ticksPerUnit: Double): DistanceEncoder {
 		return getEncoder({
-			DistanceEncoder(it, ticksPerUnit, distance)
+			DistanceEncoder(it, unit, ticksPerUnit)
 		}, port)
 	}
 }

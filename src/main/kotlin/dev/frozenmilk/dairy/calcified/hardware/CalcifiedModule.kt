@@ -16,16 +16,15 @@ import dev.frozenmilk.dairy.calcified.hardware.motor.CalcifiedMotor
 import dev.frozenmilk.dairy.calcified.hardware.encoder.DistanceEncoder
 import dev.frozenmilk.dairy.calcified.hardware.encoder.Encoder
 import dev.frozenmilk.dairy.calcified.hardware.encoder.TicksEncoder
-import dev.frozenmilk.dairy.calcified.hardware.sensor.AnalogInput
+import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedAnalogInput
 import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedIMU
-import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalInput
-import dev.frozenmilk.dairy.calcified.hardware.sensor.DigitalOutput
+import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedDigitalInput
+import dev.frozenmilk.dairy.calcified.hardware.sensor.CalcifiedDigitalOutput
 import dev.frozenmilk.dairy.calcified.hardware.pwm.CalcifiedContinuousServo
 import dev.frozenmilk.dairy.calcified.hardware.pwm.CalcifiedServo
 import dev.frozenmilk.util.cell.LateInitCell
 import dev.frozenmilk.util.units.distance.DistanceUnit
-import dev.frozenmilk.util.units.angle.AngleUnit
-import dev.frozenmilk.util.units.angle.AngleUnits
+import dev.frozenmilk.util.units.angle.Wrapping
 import dev.frozenmilk.util.units.orientation.AngleBasedRobotOrientation
 
 class CalcifiedModule(val lynxModule: LynxModule) {
@@ -40,9 +39,9 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 			CalcifiedEncoder::class.java to encoders,
 			CalcifiedServo::class.java to PWMDevices,
 			CalcifiedIMU::class.java to i2cDevices,
-			DigitalInput::class.java to digitalChannels,
-			DigitalOutput::class.java to digitalChannels,
-			AnalogInput::class.java to analogInputs,
+			CalcifiedDigitalInput::class.java to digitalChannels,
+			CalcifiedDigitalOutput::class.java to digitalChannels,
+			CalcifiedAnalogInput::class.java to analogInputs,
 	)
 		private set
 
@@ -55,11 +54,6 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 				?: throw IllegalArgumentException("failed to cast device to type ${type.simpleName}")
 	}
 
-	var cachedTime: Double = System.nanoTime() / 1E9
-		private set
-	var previousCachedTime: Double = cachedTime
-		private set
-
 	var bulkData: LynxGetBulkInputDataResponse by LateInitCell()
 		private set
 
@@ -68,18 +62,6 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 	}
 
 	fun refreshBulkCache() {
-		// update cached time first
-		previousCachedTime = cachedTime
-		cachedTime = System.nanoTime() / 1E9
-
-		// encoders rely on the current bulk cache info, we ensure that the encoders get to look at it before we clear it
-		encoders.forEach { (_, encoder) -> encoder.clearCache() }
-		i2cDevices.forEach { (_, imu) -> (imu as? CalcifiedIMU)?.let { imu.clearCache() } }
-		digitalChannels
-				.filter { (_, digitalChannel) -> digitalChannel is DigitalInput }
-				.forEach { (_, input) -> (input as DigitalInput).clearCache() }
-
-		// finally, update the bulk cache
 		bulkData = LynxGetBulkInputDataCommand(lynxModule).sendReceive();
 	}
 
@@ -99,20 +81,12 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 		return encoders.getEncoder(port)
 	}
 
-	fun getDistanceEncoder(port: Byte, ticksPerUnit: Double, unit: DistanceUnit): DistanceEncoder {
-		return encoders.getDistanceEncoder(port, ticksPerUnit, unit);
+	fun getDistanceEncoder(port: Byte, unit: DistanceUnit, ticksPerUnit: Double): DistanceEncoder {
+		return encoders.getDistanceEncoder(port, unit, ticksPerUnit);
 	}
 
-	fun getAngleEncoder(port: Byte, ticksPerRevolution: Double, angleUnit: AngleUnit): AngleEncoder {
-		return encoders.getAngleEncoder(port, ticksPerRevolution, angleUnit)
-	}
-
-	fun getDegreeEncoder(port: Byte, ticksPerRevolution: Double): AngleEncoder {
-		return getAngleEncoder(port, ticksPerRevolution, AngleUnits.DEGREE)
-	}
-
-	fun getRadianEncoder(port: Byte, ticksPerRevolution: Double): AngleEncoder {
-		return getAngleEncoder(port, ticksPerRevolution, AngleUnits.RADIAN)
+	fun getAngleEncoder(port: Byte, wrapping: Wrapping, ticksPerRevolution: Double): AngleEncoder {
+		return encoders.getAngleEncoder(port, wrapping, ticksPerRevolution)
 	}
 
 	fun getServo(port: Byte): CalcifiedServo {
@@ -124,29 +98,29 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 	}
 
 	@JvmOverloads
-	fun getIMU_BHI260(port: Byte, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU_BHI260(port: Byte = 0, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU_BHI260(port, angleBasedRobotOrientation)
 	}
 
 	@JvmOverloads
-	fun getIMU_BNO055(port: Byte, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU_BNO055(port: Byte = 0, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU_BNO055(port, angleBasedRobotOrientation)
 	}
 
 	@JvmOverloads
-	fun getIMU(port: Byte, lynxModuleImuType: LynxModuleImuType = lynxModule.imuType, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU(port: Byte = 0, lynxModuleImuType: LynxModuleImuType = lynxModule.imuType, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU(port, lynxModuleImuType, angleBasedRobotOrientation)
 	}
 
-	fun getDigitalInput(port: Byte): DigitalInput {
+	fun getDigitalInput(port: Byte): CalcifiedDigitalInput {
 		return digitalChannels.getInput(port)
 	}
 
-	fun getDigitalOutput(port: Byte): DigitalOutput {
+	fun getDigitalOutput(port: Byte): CalcifiedDigitalOutput {
 		return digitalChannels.getOutput(port)
 	}
 
-	fun getAnalogInput(port: Byte): AnalogInput {
+	fun getAnalogInput(port: Byte): CalcifiedAnalogInput {
 		return analogInputs.getInput(port)
 	}
 }
