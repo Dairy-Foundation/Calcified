@@ -1,6 +1,7 @@
 package dev.frozenmilk.dairy.calcified.hardware.motor
 
 import com.qualcomm.hardware.lynx.commands.core.LynxGetADCCommand
+import com.qualcomm.hardware.lynx.commands.core.LynxGetMotorChannelCurrentAlertLevelCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorChannelCurrentAlertLevelCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorChannelEnableCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorChannelModeCommand
@@ -8,9 +9,7 @@ import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorConstantPowerCommand
 import com.qualcomm.robotcore.hardware.DcMotor
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.core.util.current.Current
-import dev.frozenmilk.dairy.core.util.current.CurrentUnit
 import dev.frozenmilk.dairy.core.util.current.CurrentUnits
-import dev.frozenmilk.util.units.ReifiedUnit
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -51,7 +50,7 @@ class CalcifiedMotor internal constructor(val module: CalcifiedModule, val port:
 			val milliAmps = LynxGetADCCommand(module.lynxModule, LynxGetADCCommand.Channel.motorCurrent(port.toInt()), LynxGetADCCommand.Mode.ENGINEERING).sendReceive().value
 			return Current(CurrentUnits.MILLI_AMP, milliAmps.toDouble())
 		}
-	override var overCurrentThreshold = current.run { this - this }
+	override var overCurrentThreshold = Current(CurrentUnits.MILLI_AMP, LynxGetMotorChannelCurrentAlertLevelCommand(module.lynxModule, port.toInt()).sendReceive().currentLimit.toDouble())
 		set(value) {
 			LynxSetMotorChannelCurrentAlertLevelCommand(module.lynxModule, port.toInt(), value.into(CurrentUnits.MILLI_AMP).value.roundToInt()).send()
 			field = value
