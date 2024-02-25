@@ -10,5 +10,6 @@ class DistanceEncoder(val encoder: Encoder<Double>, unit: DistanceUnit, ticksPer
 		get() = encoder.direction
 		set(value) { encoder.direction = value }
 	override val enhancedSupplier = EnhancedUnitSupplier({ Distance(unit, encoder.position / ticksPerUnit) })
+	override val enhancedComparableSupplier = enhancedSupplier
 	override fun reset() = encoder.reset()
 }

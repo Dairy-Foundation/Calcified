@@ -10,5 +10,6 @@ class AngleEncoder(val encoder: Encoder<Double>, wrapping: Wrapping = Wrapping.L
 		get() = encoder.direction
 		set(value) { encoder.direction = value }
 	override val enhancedSupplier = EnhancedUnitSupplier({ Angle(AngleUnits.RADIAN, wrapping, (encoder.position / ticksPerRevolution) * Math.PI * 2 ) })
+	override val enhancedComparableSupplier = enhancedSupplier
 	override fun reset() = encoder.reset()
 }
