@@ -1,7 +1,9 @@
 package dev.frozenmilk.dairy.calcified.hardware.encoder
 
-import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumberSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedComparableSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
+import dev.frozenmilk.dairy.core.util.supplier.numeric.modifier.Modifier
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import java.util.function.Supplier
 
@@ -9,12 +11,8 @@ import java.util.function.Supplier
  * used to automate the pass through process
  */
 abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
-	override val modify
-		get() = enhancedSupplier.modify
-	override val lowerDeadzone
-		get() = enhancedSupplier.lowerDeadzone
-	override val upperDeadzone
-		get() = enhancedSupplier.upperDeadzone
+	override val modifier
+		get() = enhancedSupplier.modifier
 	override val supplier
 		get() = enhancedSupplier.supplier
 	override var position
@@ -36,7 +34,8 @@ abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
 	override var autoUpdates
 		get() = enhancedSupplier.autoUpdates
 		set(value) { enhancedSupplier.autoUpdates = value }
-	abstract val enhancedSupplier: IEnhancedNumberSupplier<T>
+	abstract val enhancedSupplier: IEnhancedNumericSupplier<T>
+	abstract val enhancedComparableSupplier: EnhancedComparableSupplier<T>
 	override fun invalidate() = enhancedSupplier.invalidate()
 	override fun findErrorPosition(target: T) = enhancedSupplier.findErrorPosition(target)
 	override fun findErrorVelocity(target: T) = enhancedSupplier.findErrorVelocity(target)
@@ -45,17 +44,13 @@ abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
 	override fun findErrorRawAcceleration(target: T) = enhancedSupplier.findErrorRawAcceleration(target)
 	override fun component(motionComponent: MotionComponents) = enhancedSupplier.component(motionComponent)
 	override fun componentError(motionComponent: MotionComponents, target: T) = enhancedSupplier.componentError(motionComponent, target)
-	override fun <N2> merge(supplier: Supplier<out N2>, merge: (T, N2) -> T) = enhancedSupplier.merge(supplier, merge)
-	override fun applyModifier(modify: (T) -> T) = enhancedSupplier.applyModifier(modify)
-	override fun applyDeadzone(deadzone: T) = enhancedSupplier.applyDeadzone(deadzone)
-	override fun applyDeadzone(lowerDeadzone: T, upperDeadzone: T) = enhancedSupplier.applyDeadzone(lowerDeadzone, upperDeadzone)
-	override fun applyLowerDeadzone(lowerDeadzone: T) = enhancedSupplier.applyLowerDeadzone(lowerDeadzone)
-	override fun applyUpperDeadzone(upperDeadzone: T) = enhancedSupplier.applyUpperDeadzone(upperDeadzone)
-	override fun conditionalBindPosition() = enhancedSupplier.conditionalBindPosition()
-	override fun conditionalBindVelocity() = enhancedSupplier.conditionalBindVelocity()
-	override fun conditionalBindVelocityRaw() = enhancedSupplier.conditionalBindVelocityRaw()
-	override fun conditionalBindAcceleration() = enhancedSupplier.conditionalBindAcceleration()
-	override fun conditionalBindAccelerationRaw() = enhancedSupplier.conditionalBindAccelerationRaw()
+	override fun <T2> merge(supplier: Supplier<out T2>, merge: (T, T2) -> T) = enhancedSupplier.merge(supplier, merge)
+	override fun applyModifier(modify: Modifier<T>) = enhancedSupplier.applyModifier(modify)
+	override fun conditionalBindPosition() = enhancedComparableSupplier.conditionalBindPosition()
+	override fun conditionalBindVelocity() = enhancedComparableSupplier.conditionalBindVelocity()
+	override fun conditionalBindVelocityRaw() = enhancedComparableSupplier.conditionalBindVelocityRaw()
+	override fun conditionalBindAcceleration() = enhancedComparableSupplier.conditionalBindAcceleration()
+	override fun conditionalBindAccelerationRaw() = enhancedComparableSupplier.conditionalBindAccelerationRaw()
 	override fun preUserInitHook(opMode: Wrapper) = enhancedSupplier.preUserInitLoopHook(opMode)
 	override fun preUserInitLoopHook(opMode: Wrapper) = enhancedSupplier.preUserInitLoopHook(opMode)
 	override fun preUserStartHook(opMode: Wrapper) = enhancedSupplier.preUserStartHook(opMode)

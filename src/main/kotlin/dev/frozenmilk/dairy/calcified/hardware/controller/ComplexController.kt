@@ -7,19 +7,19 @@ import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencies.Dependency
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
-import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedNumberSupplier
-import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumberSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedNumericSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import java.util.function.Supplier
 
-abstract class ComplexController<T: Comparable<T>>(
+abstract class ComplexController<T>(
 		var targetSupplier: Supplier<out T>,
 		var motionComponent: MotionComponents,
 		var toleranceEpsilon: T,
 		val motors: SimpleMotor,
-		val calculators: List<Pair<IEnhancedNumberSupplier<T>, CalculationComponent<T>>>,
-		protected val indexedToUsrErr: Map<IEnhancedNumberSupplier<T>, Boolean>,
+		val calculators: List<Pair<IEnhancedNumericSupplier<T>, CalculationComponent<T>>>,
+		protected val indexedToUsrErr: Map<IEnhancedNumericSupplier<T>, Boolean>,
 ) : Feature {
 	@Suppress("LeakingThis")
 	override val dependencies: Set<Dependency<*, *>> = DependencySet(this)
@@ -135,7 +135,7 @@ abstract class ComplexController<T: Comparable<T>>(
 	}
 
 	/**
-	 * an [EnhancedNumberSupplier] built off the output of this controller, useful for piping the output of this controller to another
+	 * an [EnhancedNumericSupplier] built off the output of this controller, useful for piping the output of this controller to another
 	 */
-	abstract val supplier: EnhancedNumberSupplier<T>
+	abstract val supplier: EnhancedNumericSupplier<T>
 }
