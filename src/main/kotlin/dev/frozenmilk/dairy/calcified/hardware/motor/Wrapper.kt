@@ -1,7 +1,7 @@
 package dev.frozenmilk.dairy.calcified.hardware.motor
 
 import com.qualcomm.robotcore.hardware.DcMotorEx
-import dev.frozenmilk.dairy.core.util.cachinghardwaredevice.CachingDcMotorSimple
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorSimple
 
 class Wrapper(var motor: CachingDcMotorSimple) : SimpleMotor {
 	override var direction: Direction

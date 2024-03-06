@@ -1,9 +1,10 @@
 package dev.frozenmilk.dairy.calcified.hardware.encoder
 
+import dev.frozenmilk.dairy.core.util.supplier.logical.IConditional
 import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedComparableSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
-import dev.frozenmilk.dairy.core.util.supplier.numeric.modifier.Modifier
+import dev.frozenmilk.util.modifier.Modifier
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import java.util.function.Supplier
 
@@ -35,7 +36,7 @@ abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
 		get() = enhancedSupplier.autoUpdates
 		set(value) { enhancedSupplier.autoUpdates = value }
 	abstract val enhancedSupplier: IEnhancedNumericSupplier<T>
-	abstract val enhancedComparableSupplier: EnhancedComparableSupplier<T>
+	abstract val enhancedComparableSupplier: EnhancedComparableSupplier<T, IConditional<T>>
 	override fun invalidate() = enhancedSupplier.invalidate()
 	override fun findErrorPosition(target: T) = enhancedSupplier.findErrorPosition(target)
 	override fun findErrorVelocity(target: T) = enhancedSupplier.findErrorVelocity(target)
