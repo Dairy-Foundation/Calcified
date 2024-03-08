@@ -18,7 +18,6 @@ class Encoders internal constructor(module: CalcifiedModule) : CalcifiedDeviceMa
 		if (port !in LynxConstants.INITIAL_MOTOR_PORT until LynxConstants.INITIAL_MOTOR_PORT + LynxConstants.NUMBER_OF_MOTORS) throw IllegalArgumentException("$port is not in the acceptable port range [${LynxConstants.INITIAL_MOTOR_PORT}, ${LynxConstants.INITIAL_MOTOR_PORT + LynxConstants.NUMBER_OF_MOTORS - 1}]")
 		if (!contains(port) || this[port] !is TicksEncoder) {
 			this[port] = TicksEncoder(module, port)
-			this[port]?.reset()
 		}
 		return (this[port] as TicksEncoder)
 	}
