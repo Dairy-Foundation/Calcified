@@ -1,8 +1,7 @@
 package dev.frozenmilk.dairy.calcified.hardware.encoder
 
 import dev.frozenmilk.dairy.core.util.supplier.logical.Conditional
-import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedComparableSupplier
-import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedComparableNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.util.modifier.Modifier
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
@@ -35,8 +34,7 @@ abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
 	override var autoUpdates
 		get() = enhancedSupplier.autoUpdates
 		set(value) { enhancedSupplier.autoUpdates = value }
-	abstract val enhancedSupplier: IEnhancedNumericSupplier<T>
-	abstract val enhancedComparableSupplier: EnhancedComparableSupplier<T, Conditional<T>>
+	abstract val enhancedSupplier: EnhancedComparableNumericSupplier<T, Conditional<T>>
 	override fun invalidate() = enhancedSupplier.invalidate()
 	override fun findErrorPosition(target: T) = enhancedSupplier.findErrorPosition(target)
 	override fun findErrorVelocity(target: T) = enhancedSupplier.findErrorVelocity(target)
@@ -48,11 +46,11 @@ abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
 	override fun <T2> merge(supplier: Supplier<out T2>, merge: (T, T2) -> T) = enhancedSupplier.merge(supplier, merge)
 	override fun applyModifier(modifier: Modifier<T>) = enhancedSupplier.applyModifier(modifier)
 	override fun setModifier(modifier: Modifier<T>) = enhancedSupplier.setModifier(modifier)
-	override fun conditionalBindPosition() = enhancedComparableSupplier.conditionalBindPosition()
-	override fun conditionalBindVelocity() = enhancedComparableSupplier.conditionalBindVelocity()
-	override fun conditionalBindVelocityRaw() = enhancedComparableSupplier.conditionalBindVelocityRaw()
-	override fun conditionalBindAcceleration() = enhancedComparableSupplier.conditionalBindAcceleration()
-	override fun conditionalBindAccelerationRaw() = enhancedComparableSupplier.conditionalBindAccelerationRaw()
+	override fun conditionalBindPosition() = enhancedSupplier.conditionalBindPosition()
+	override fun conditionalBindVelocity() = enhancedSupplier.conditionalBindVelocity()
+	override fun conditionalBindVelocityRaw() = enhancedSupplier.conditionalBindVelocityRaw()
+	override fun conditionalBindAcceleration() = enhancedSupplier.conditionalBindAcceleration()
+	override fun conditionalBindAccelerationRaw() = enhancedSupplier.conditionalBindAccelerationRaw()
 	override fun preUserInitHook(opMode: Wrapper) = enhancedSupplier.preUserInitLoopHook(opMode)
 	override fun preUserInitLoopHook(opMode: Wrapper) = enhancedSupplier.preUserInitLoopHook(opMode)
 	override fun preUserStartHook(opMode: Wrapper) = enhancedSupplier.preUserStartHook(opMode)
