@@ -9,7 +9,6 @@ abstract class CalcifiedEncoder<T: Comparable<T>> internal constructor(val modul
 	protected abstract val zero: T
 	override fun reset() {
 		LynxResetMotorEncoderCommand(module.lynxModule, port.toInt()).send()
-		position = zero
 	}
 }
 
