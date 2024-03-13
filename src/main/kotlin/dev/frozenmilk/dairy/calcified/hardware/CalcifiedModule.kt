@@ -34,7 +34,7 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 	val i2cDevices = I2CDevices(this)
 	val digitalChannels = DigitalChannels(this)
 	val analogInputs = AnalogInputs(this)
-	var deviceMap: MutableMap<Class<*>, MutableMap<Byte, out Any>> = mutableMapOf(
+	var deviceMap: MutableMap<Class<*>, MutableMap<Int, out Any>> = mutableMapOf(
 			CalcifiedMotor::class.java to motors,
 			CalcifiedEncoder::class.java to encoders,
 			CalcifiedServo::class.java to PWMDevices,
@@ -45,7 +45,7 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 	)
 		private set
 
-	fun <T> unsafeGet(type: Class<out T>, port: Byte): T {
+	fun <T> unsafeGet(type: Class<out T>, port: Int): T {
 		val resultMap = deviceMap[type]
 				?: throw IllegalArgumentException("no mappings of type ${type.simpleName} in this module's device mapping")
 		val result = resultMap[port]
@@ -62,65 +62,65 @@ class CalcifiedModule(val lynxModule: LynxModule) {
 	}
 
 	fun refreshBulkCache() {
-		bulkData = LynxGetBulkInputDataCommand(lynxModule).sendReceive();
+		bulkData = LynxGetBulkInputDataCommand(lynxModule).sendReceive()
 	}
 
 	//
 	// Remaps to the device maps
 	//
 
-	fun getMotor(port: Byte): CalcifiedMotor {
+	fun getMotor(port: Int): CalcifiedMotor {
 		return motors.getMotor(port)
 	}
 
-	fun getTicksEncoder(port: Byte): TicksEncoder {
+	fun getTicksEncoder(port: Int): TicksEncoder {
 		return encoders.getTicksEncoder(port)
 	}
 
-	fun getAttachedEncoder(port: Byte) : Encoder<*>? {
+	fun getAttachedEncoder(port: Int) : Encoder<*>? {
 		return encoders.getEncoder(port)
 	}
 
-	fun getDistanceEncoder(port: Byte, unit: DistanceUnit, ticksPerUnit: Double): DistanceEncoder {
-		return encoders.getDistanceEncoder(port, unit, ticksPerUnit);
+	fun getDistanceEncoder(port: Int, unit: DistanceUnit, ticksPerUnit: Double): DistanceEncoder {
+		return encoders.getDistanceEncoder(port, unit, ticksPerUnit)
 	}
 
-	fun getAngleEncoder(port: Byte, wrapping: Wrapping, ticksPerRevolution: Double): AngleEncoder {
+	fun getAngleEncoder(port: Int, wrapping: Wrapping, ticksPerRevolution: Double): AngleEncoder {
 		return encoders.getAngleEncoder(port, wrapping, ticksPerRevolution)
 	}
 
-	fun getServo(port: Byte): CalcifiedServo {
+	fun getServo(port: Int): CalcifiedServo {
 		return PWMDevices.getServo(port)
 	}
 
-	fun getContinuousServo(port: Byte): CalcifiedContinuousServo {
+	fun getContinuousServo(port: Int): CalcifiedContinuousServo {
 		return PWMDevices.getContinuousServo(port)
 	}
 
 	@JvmOverloads
-	fun getIMU_BHI260(port: Byte = 0, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU_BHI260(port: Int = 0, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU_BHI260(port, angleBasedRobotOrientation)
 	}
 
 	@JvmOverloads
-	fun getIMU_BNO055(port: Byte = 0, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU_BNO055(port: Int = 0, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU_BNO055(port, angleBasedRobotOrientation)
 	}
 
 	@JvmOverloads
-	fun getIMU(port: Byte = 0, lynxModuleImuType: LynxModuleImuType = lynxModule.imuType, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
+	fun getIMU(port: Int = 0, lynxModuleImuType: LynxModuleImuType = lynxModule.imuType, angleBasedRobotOrientation: AngleBasedRobotOrientation = AngleBasedRobotOrientation()): CalcifiedIMU {
 		return i2cDevices.getIMU(port, lynxModuleImuType, angleBasedRobotOrientation)
 	}
 
-	fun getDigitalInput(port: Byte): CalcifiedDigitalInput {
+	fun getDigitalInput(port: Int): CalcifiedDigitalInput {
 		return digitalChannels.getInput(port)
 	}
 
-	fun getDigitalOutput(port: Byte): CalcifiedDigitalOutput {
+	fun getDigitalOutput(port: Int): CalcifiedDigitalOutput {
 		return digitalChannels.getOutput(port)
 	}
 
-	fun getAnalogInput(port: Byte): CalcifiedAnalogInput {
+	fun getAnalogInput(port: Int): CalcifiedAnalogInput {
 		return analogInputs.getInput(port)
 	}
 }

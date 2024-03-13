@@ -6,8 +6,8 @@ import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.core.util.supplier.logical.EnhancedBooleanSupplier
 import dev.frozenmilk.dairy.core.util.supplier.logical.IEnhancedBooleanSupplier
 
-class CalcifiedDigitalInput(val module: CalcifiedModule, val port: Byte) : IEnhancedBooleanSupplier by EnhancedBooleanSupplier({ module.bulkData.getDigitalInput(port.toInt()) }) {
+class CalcifiedDigitalInput(val module: CalcifiedModule, val port: Int) : IEnhancedBooleanSupplier by EnhancedBooleanSupplier({ module.bulkData.getDigitalInput(port) }) {
 	init {
-		LynxSetDIODirectionCommand(module.lynxModule, port.toInt(), DigitalChannel.Mode.INPUT).send()
+		LynxSetDIODirectionCommand(module.lynxModule, port, DigitalChannel.Mode.INPUT).send()
 	}
 }

@@ -10,12 +10,12 @@ import dev.frozenmilk.dairy.calcified.hardware.motor.Direction
 import dev.frozenmilk.dairy.calcified.hardware.motor.SimpleMotor
 import kotlin.math.abs
 
-class CalcifiedContinuousServo internal constructor(val module: CalcifiedModule, val port: Byte) : SimpleMotor, PWMDevice {
+class CalcifiedContinuousServo internal constructor(val module: CalcifiedModule, val port: Int) : SimpleMotor, PWMDevice {
 	override var direction = Direction.FORWARD
 	override var pwmRange: PwmControl.PwmRange = PwmControl.PwmRange.defaultRange
 		set(value) {
 			if (value.usFrame != field.usFrame) {
-				LynxSetServoConfigurationCommand(module.lynxModule, port.toInt(), value.usFrame.toInt()).send()
+				LynxSetServoConfigurationCommand(module.lynxModule, port, value.usFrame.toInt()).send()
 			}
 			field = value
 		}
@@ -27,7 +27,7 @@ class CalcifiedContinuousServo internal constructor(val module: CalcifiedModule,
 			firstEnable = true
 			if (field != value) {
 				// sends the command to change the enable state
-				LynxSetServoEnableCommand(module.lynxModule, port.toInt(), value).send()
+				LynxSetServoEnableCommand(module.lynxModule, port, value).send()
 				field = value
 			}
 		}
@@ -44,13 +44,13 @@ class CalcifiedContinuousServo internal constructor(val module: CalcifiedModule,
 						.toInt()
 						.coerceIn(LynxSetServoPulseWidthCommand.apiPulseWidthFirst, LynxSetServoPulseWidthCommand.apiPulseWidthLast)
 
-				LynxSetServoPulseWidthCommand(module.lynxModule, port.toInt(), pwm).send()
+				LynxSetServoPulseWidthCommand(module.lynxModule, port, pwm).send()
 				field = correctedValue
 			}
 			if (!firstEnable) enabled = true
 		}
 
 	init {
-		LynxSetServoConfigurationCommand(module.lynxModule, port.toInt(), pwmRange.usFrame.toInt()).send()
+		LynxSetServoConfigurationCommand(module.lynxModule, port, pwmRange.usFrame.toInt()).send()
 	}
 }
