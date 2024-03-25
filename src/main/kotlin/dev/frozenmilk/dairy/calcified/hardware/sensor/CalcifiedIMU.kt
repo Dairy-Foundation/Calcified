@@ -62,6 +62,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 				previousOrientation = field
 				// doesn't run through the setter function
 				val result = readIMU()
+				quaternion = result.first
 				field = result.second - offsetOrientation
 			}
 			return field
@@ -69,6 +70,14 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 		set(value) {
 			offsetOrientation = value - field
 			field = value
+		}
+
+	/**
+	 * the current orientation of the robot
+	 */
+	var quaternion  = Quaternion()
+		set(value) {
+			orientation = fromQuaternion(value)
 		}
 
 	/**
