@@ -51,9 +51,9 @@ dependencies {
 	testImplementation(project(":Core"))
 
 	compileOnly("com.github.Dairy-Foundation:CachingHardware:v1")
-	compileOnly("org.firstinspires.ftc:RobotCore:9.0.1")
-	compileOnly("org.firstinspires.ftc:Hardware:9.0.1")
-	compileOnly("org.firstinspires.ftc:FtcCommon:9.0.1")
+	compileOnly("org.firstinspires.ftc:RobotCore:9.1.0")
+	compileOnly("org.firstinspires.ftc:Hardware:9.1.0")
+	compileOnly("org.firstinspires.ftc:FtcCommon:9.1.0")
 }
 
 publishing {
