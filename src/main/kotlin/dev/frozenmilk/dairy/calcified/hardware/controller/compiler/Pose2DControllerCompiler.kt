@@ -13,6 +13,7 @@ class Pose2DControllerCompiler private constructor(consumer: Consumer<Pose2D>, c
 	constructor() : this({}, emptyList(), emptyMap(), null)
 	override fun set(vararg consumers: Consumer<Pose2D>) = Pose2DControllerCompiler({ p0 -> consumers.forEach { it.accept(p0) } }, calculators, indexedToUsrErr, currentSupplier)
 	override fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<Pose2D>, indexedToUsrErr: Boolean) = Pose2DControllerCompiler(consumer, calculators, this.indexedToUsrErr.apply { this.plus(enhancedSupplier to indexedToUsrErr) }, enhancedSupplier)
+	override fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<Pose2D>) = withSupplier(enhancedSupplier, true)
 	override fun append(calculator: CalculationComponent<Pose2D>) = Pose2DControllerCompiler(consumer, calculators.plus(
 			(currentSupplier ?: throw IllegalStateException("no supplier attached, an EnhancedSupplier of the appropriate type must be attached using 'withSupplier' before calculators can be attached"))
 					to calculator

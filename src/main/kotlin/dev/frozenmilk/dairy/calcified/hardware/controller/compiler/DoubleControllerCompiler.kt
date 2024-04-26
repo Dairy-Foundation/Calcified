@@ -17,4 +17,5 @@ class DoubleControllerCompiler private constructor(consumer: Consumer<Double>, c
 					to calculator
 	), indexedToUsrErr, currentSupplier)
 	override fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<Double>, indexedToUsrErr: Boolean) = DoubleControllerCompiler(consumer, calculators, this.indexedToUsrErr.apply { this.plus(enhancedSupplier to indexedToUsrErr) }, enhancedSupplier)
+	override fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<Double>) = withSupplier(enhancedSupplier, true)
 }

@@ -17,6 +17,7 @@ class UnitControllerCompiler<U: Unit<U>, RU: ReifiedUnit<U, RU>> private constru
 	fun add(vararg motors: SimpleMotor) = set(this.consumer, { p0 -> motors.forEach { it.accept(p0.intoCommon().value) } })
 	override fun set(vararg consumers: Consumer<RU>) = UnitControllerCompiler({ p0 -> consumers.forEach { it.accept(p0) } }, calculators, indexedToUsrErr, currentSupplier)
 	override fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<RU>, indexedToUsrErr: Boolean) = UnitControllerCompiler(consumer, calculators, this.indexedToUsrErr.apply { this.plus(enhancedSupplier to indexedToUsrErr) }, enhancedSupplier)
+	override fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<RU>) = withSupplier(enhancedSupplier, true)
 	override fun append(calculator: CalculationComponent<RU>) = UnitControllerCompiler(consumer, calculators.plus(
 			(currentSupplier ?: throw IllegalStateException("no supplier attached, an EnhancedSupplier of the appropriate type must be attached using 'withSupplier' before calculators can be attached"))
 			to calculator

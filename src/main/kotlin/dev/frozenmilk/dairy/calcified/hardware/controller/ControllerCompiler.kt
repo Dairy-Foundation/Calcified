@@ -16,7 +16,8 @@ abstract class ControllerCompiler<T> protected constructor(
 	protected fun internalSet(motors: Array<out SimpleMotor>): SimpleMotor = MotorGroup(*motors)
 	abstract fun set(vararg consumers: Consumer<T>): ControllerCompiler<T>
 	fun add(vararg consumers: Consumer<T>) = set(this.consumer, *consumers)
-	abstract fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<T>, indexedToUsrErr: Boolean = true): ControllerCompiler<T>
+	abstract fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<T>, indexedToUsrErr: Boolean): ControllerCompiler<T>
+	abstract fun withSupplier(enhancedSupplier: IEnhancedNumericSupplier<T>): ControllerCompiler<T>
 	abstract fun append(calculator: CalculationComponent<T>): ControllerCompiler<T>
 	abstract fun compile(target: Supplier<T>, motionComponent: MotionComponents, toleranceEpsilon: T): ComplexController<T>
 	fun compile(target: T, motionComponent: MotionComponents, toleranceEpsilon: T) = compile({ target }, motionComponent, toleranceEpsilon)
