@@ -2,7 +2,7 @@ package dev.frozenmilk.dairy.calcified.hardware.motor
 
 import kotlin.math.abs
 
-class MotorControllerGroup(motors: Collection<SimpleMotor>) : Collection<SimpleMotor> by motors, SimpleMotor {
+class MotorGroup(motors: Collection<SimpleMotor>) : Collection<SimpleMotor> by motors, SimpleMotor {
 	constructor(vararg motors: SimpleMotor) : this(motors.toList())
 	override var direction: Direction = Direction.FORWARD
 		set(value) {

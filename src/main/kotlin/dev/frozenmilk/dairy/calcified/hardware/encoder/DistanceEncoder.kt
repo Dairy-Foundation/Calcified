@@ -1,7 +1,7 @@
 package dev.frozenmilk.dairy.calcified.hardware.encoder
 
 import dev.frozenmilk.dairy.calcified.hardware.motor.Direction
-import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedUnitSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.unit.EnhancedUnitSupplier
 import dev.frozenmilk.util.units.distance.Distance
 import dev.frozenmilk.util.units.distance.DistanceUnit
 

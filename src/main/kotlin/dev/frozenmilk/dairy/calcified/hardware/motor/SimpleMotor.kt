@@ -1,6 +1,8 @@
 package dev.frozenmilk.dairy.calcified.hardware.motor
 
-interface SimpleMotor {
+import java.util.function.Consumer
+
+interface SimpleMotor : Consumer<Double> {
 	var direction: Direction
 	var cachingTolerance: Double
 	var enabled: Boolean
@@ -12,4 +14,5 @@ interface SimpleMotor {
 		this.power = power
 		cachingTolerance = tolerance
 	}
+	override fun accept(p0: Double) { power = p0 }
 }

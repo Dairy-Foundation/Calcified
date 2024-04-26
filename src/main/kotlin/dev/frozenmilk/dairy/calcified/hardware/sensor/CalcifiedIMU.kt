@@ -19,7 +19,7 @@ import dev.frozenmilk.dairy.calcified.Calcified
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
-import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedUnitSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.unit.EnhancedUnitSupplier
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.util.units.angle.Angle
 import dev.frozenmilk.util.units.angle.AngleUnits

@@ -2,7 +2,6 @@ package dev.frozenmilk.dairy.calcified.hardware.controller
 
 import dev.frozenmilk.dairy.calcified.Calcified
 import dev.frozenmilk.dairy.calcified.hardware.controller.calculation.CalculationComponent
-import dev.frozenmilk.dairy.calcified.hardware.motor.SimpleMotor
 import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
 import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedNumericSupplier
@@ -10,6 +9,7 @@ import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.util.cell.LazyCell
+import java.util.function.Consumer
 import java.util.function.Supplier
 
 /**
@@ -19,7 +19,7 @@ abstract class ComplexController<T>(
 		var targetSupplier: Supplier<out T>,
 		var motionComponent: MotionComponents,
 		var toleranceEpsilon: T,
-		val motors: SimpleMotor,
+		val outputConsumer: Consumer<T>,
 		private val calculators: List<Pair<IEnhancedNumericSupplier<T>, CalculationComponent<T>>>,
 		private val indexedToUsrErr: Map<IEnhancedNumericSupplier<T>, Boolean>,
 ) : Feature {
@@ -68,13 +68,10 @@ abstract class ComplexController<T>(
 			}
 			return _output
 		}
-	val outputPower
-		get() = toPower(output)
 
 	fun update() {
-		motors.power = outputPower
+		outputConsumer.accept(output)
 	}
-	protected abstract fun toPower(output: T): Double
 
 	/**
 	 * average of all errors from the suppliers that are user indexed
