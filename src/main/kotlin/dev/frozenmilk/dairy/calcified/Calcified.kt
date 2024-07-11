@@ -6,10 +6,9 @@ import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.core.DairyCore
 import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.FeatureRegistrar
-import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
+import dev.frozenmilk.dairy.core.dependency.annotation.OneOfAnnotations
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.util.cell.LazyCell
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta.Flavor
 import java.lang.annotation.Inherited
 
 /**
@@ -26,18 +25,9 @@ object Calcified : Feature {
 	/**
 	 * enabled by having either @[DairyCore] or @[Attach]
 	 */
-	override val dependencies = DependencySet(this)
-			.includesExactlyOneOf(DairyCore::class.java, Attach::class.java).bindOutputTo {
-				automatedCacheHandling = when (it) {
-					is Attach -> {
-						it.automatedCacheHandling
-					}
-
-					else -> {
-						true
-					}
-				}
-			}
+	override val dependency = OneOfAnnotations(DairyCore::class.java, Attach::class.java).onResolve {
+		automatedCacheHandling = if (it is Attach) it.automatedCacheHandling else true
+	}
 
 	/**
 	 * all calcified modules found this OpMode

@@ -1,5 +1,6 @@
 package dev.frozenmilk.dairy.calcified.hardware.encoder
 
+import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.util.supplier.logical.Conditional
 import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedComparableNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
@@ -29,8 +30,8 @@ abstract class AbstractEncoder<T: Comparable<T>> : Encoder<T> {
 	override var measurementWindow: Double
 		get() = enhancedSupplier.measurementWindow
 		set(value) { enhancedSupplier.measurementWindow = value }
-	override val dependencies
-		get() = enhancedSupplier.dependencies
+	override val dependency
+		get() =  enhancedSupplier.dependency
 	override var autoUpdates
 		get() = enhancedSupplier.autoUpdates
 		set(value) { enhancedSupplier.autoUpdates = value }

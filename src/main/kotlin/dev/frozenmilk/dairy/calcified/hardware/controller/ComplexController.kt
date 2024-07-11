@@ -1,9 +1,8 @@
 package dev.frozenmilk.dairy.calcified.hardware.controller
 
-import dev.frozenmilk.dairy.calcified.Calcified
 import dev.frozenmilk.dairy.calcified.hardware.controller.calculation.CalculationComponent
 import dev.frozenmilk.dairy.core.Feature
-import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
+import dev.frozenmilk.dairy.core.dependency.lazy.Yielding
 import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
@@ -23,10 +22,7 @@ abstract class ComplexController<T>(
 		private val calculators: List<Pair<IEnhancedNumericSupplier<T>, CalculationComponent<T>>>,
 		private val indexedToUsrErr: Map<IEnhancedNumericSupplier<T>, Boolean>,
 ) : Feature {
-	override val dependencies by lazy {
-		DependencySet(this)
-				.yieldsTo(Calcified::class.java)
-	}
+	override val dependency = Yielding
 	init {
 		@Suppress("LeakingThis")
 		register()

@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.TimestampedData
 import dev.frozenmilk.dairy.calcified.Calcified
 import dev.frozenmilk.dairy.calcified.hardware.CalcifiedModule
 import dev.frozenmilk.dairy.core.Feature
-import dev.frozenmilk.dairy.core.dependencyresolution.dependencyset.DependencySet
+import dev.frozenmilk.dairy.core.dependency.feature.SingleFeature
 import dev.frozenmilk.dairy.core.util.supplier.numeric.unit.EnhancedUnitSupplier
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.util.units.angle.Angle
@@ -209,7 +209,7 @@ class CalcifiedIMU internal constructor(val imuType: LynxModuleImuType, val modu
 	//
 	// Impl Feature
 	//
-	override val dependencies = DependencySet(this).dependsDirectlyOn(Calcified)
+	override val dependency = SingleFeature(Calcified)
 
 	/**
 	 * if this automatically updates, by calling [invalidate] and then finding the [orientation]
