@@ -1,6 +1,6 @@
 package dev.frozenmilk.dairy.calcified.hardware.controller.implementation
 
-import EnhancedPose2DSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.positional.EnhancedPose2DSupplier
 import dev.frozenmilk.dairy.calcified.hardware.controller.ComplexController
 import dev.frozenmilk.dairy.calcified.hardware.controller.calculation.CalculationComponent
 import dev.frozenmilk.dairy.core.util.supplier.numeric.IEnhancedNumericSupplier
